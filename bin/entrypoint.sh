@@ -11,8 +11,10 @@
 SSH_DIR=`pwd`/.ssh
 SSH_PRIV_KEY_FILE=${SSH_DIR}/${BORGBASE_NAME}_id
 SSH_PUB_KEY_FILE=${SSH_PRIV_KEY_FILE}.pub
-SSH_TYPE_KEY=ed25519
+SSH_KEY_TYPE=ed25519
 SSH_KDF=100
+
+CMD=$@
 
 export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=yes 
 export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
@@ -33,7 +35,7 @@ function create_ssh_config_file {
 function generate_ssh_key {
     COMMENT=backup@${BORGBASE_NAME}
     rm ${SSH_PRIV_KEY_FILE}* ${KNOWN_HOSTS_FILE} ${CONFIG_FILE}
-    ssh-keygen -t ${SSH_TYPE_KEY} -a ${SSH_KDF} -N '' -C ${COMMENT} -f ${SSH_PRIV_KEY_FILE}
+    ssh-keygen -t ${SSH_KEY_TYPE} -a ${SSH_KDF} -N '' -C ${COMMENT} -f ${SSH_PRIV_KEY_FILE}
 }
 
 function save_key {
@@ -68,10 +70,11 @@ function init_ssh_config {
     chown -R root ${SSH_DIR}
 }
 
-function start_cron {
+function init_cron {
     BORGMATIC_CRON="/etc/cron.hourly/borgmatic"
     BORGMATIC_CONFIG="/root/.config/borgmatic/config.yaml"
     BORGMATIC_CMD="/root/.local/bin/borgmatic -c ${BORGMATIC_CONFIG} --verbosity 1 --files"
+    BORGMATIC_LOG_FILE="/dev/shm/borgmatic.log"
     
     # Save borgmatic config
     cp ${BORGMATIC_CONFIG} /config/borgmatic.yaml
@@ -79,18 +82,17 @@ function start_cron {
     echo "Install Cron"
     { \
         echo "#!/bin/sh" ; \
-        echo "/usr/bin/flock -w 0 /dev/shm/cron.lock ${BORGMATIC_CMD} >> /dev/shm/borgmatic.log 2>&1" ; \
+        echo "/usr/bin/flock -w 0 /dev/shm/cron.lock ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" ; \
     } > ${BORGMATIC_CRON} && chmod 0500 ${BORGMATIC_CRON}
 
-    echo "Initial backup ..."
-    ${BORGMATIC_CMD}
-
-    echo "Start Cron ..."
-    cron -f
+    #Initial backup on start
+    echo "@reboot ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" >> /etc/crontab
 }
 
 init_ssh_config
 
 init_borgbase_repository.py
 
-start_cron
+init_cron
+
+$CMD

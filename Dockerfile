@@ -29,3 +29,5 @@ WORKDIR /root
 RUN mkdir -p .ssh .config/borgmatic/ /config /storage
 
 ENTRYPOINT ["entrypoint.sh"]
+
+CMD ["cron", "-f"]
