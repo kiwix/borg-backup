@@ -18,7 +18,7 @@ RUN git clone --depth=1 --branch=master https://github.com/borgbase/borgbase-api
     rm -rf borgbase-api-client && \
     pip3 install requests
 
-RUN pip3 install --user --upgrade borgmatic
+RUN pip3 install --upgrade borgmatic
 
 # Install start script
 COPY bin/ /usr/local/bin/

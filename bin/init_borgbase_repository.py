@@ -94,7 +94,7 @@ def main(name):
     repo_path = repo_id + "@" + hostname + ":repo"
 
     with open(KNOWN_HOSTS_FILE, "w") as outfile:
-        subprocess.run(["/usr/bin/ssh-keyscan", "-H", hostname], stdout=outfile)
+        subprocess.run(["ssh-keyscan", "-H", hostname], stdout=outfile)
 
     print("Use repo path :", repo_path)
 
@@ -126,7 +126,7 @@ def main(name):
     print("Init Borgmatic ...")
     subprocess.call(
         [
-            "/root/.local/bin/borgmatic",
+            "borgmatic",
             "-c",
             BORGMATIC_CONFIG,
             "-v",

@@ -73,7 +73,7 @@ function init_ssh_config {
 function init_cron {
     BORGMATIC_CRON="/etc/cron.hourly/borgmatic"
     BORGMATIC_CONFIG="/root/.config/borgmatic/config.yaml"
-    BORGMATIC_CMD="/root/.local/bin/borgmatic -c ${BORGMATIC_CONFIG} --verbosity 1 --files"
+    BORGMATIC_CMD="/usr/local/bin/borgmatic -c ${BORGMATIC_CONFIG} --verbosity 1 --files"
     BORGMATIC_LOG_FILE="/dev/shm/borgmatic.log"
     
     # Save borgmatic config
