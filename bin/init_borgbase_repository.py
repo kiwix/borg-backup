@@ -6,12 +6,6 @@ import sys
 import subprocess
 import time
 
-TOKEN = os.environ.get("BORGBASE_KEY")
-# MYSQL_USER = os.environ.get("MYSQL_USER")
-# MYSQL_DB = os.environ.get("MYSQL_DB")
-BACKUP_NAME = os.environ.get("BORGBASE_NAME")
-KNOWN_HOSTS_FILE = os.environ.get("KNOWN_HOSTS_FILE")
-
 os.environ["BORG_PASSPHRASE"] = ""
 os.environ["BORG_NEW_PASSPHRASE"] = ""
 
@@ -19,10 +13,8 @@ CONFIG_DIR = "/root/"
 BORG_ENCRYPTION = "repokey"
 BORGMATIC_CONFIG = CONFIG_DIR + ".config/borgmatic/config.yaml"
 
-client = GraphQLClient(TOKEN)
 
-
-def repo_exists(name):
+def repo_exists(client, name):
     query = """
     {
       repoList {
@@ -39,7 +31,7 @@ def repo_exists(name):
     return ""
 
 
-def repo_hostname(repo_id):
+def repo_hostname(client, repo_id):
     query = """
     {
       repoList {
@@ -57,7 +49,7 @@ def repo_hostname(repo_id):
             return repo["server"]["hostname"]
 
 
-def create_repo(name):
+def create_repo(client, name):
     new_key_vars = {
         "name": "Key for " + name,
         "keyData": open(CONFIG_DIR + ".ssh/" + name + "_id.pub").readline().strip(),
@@ -79,18 +71,18 @@ def create_repo(name):
     return res["data"]["repoAdd"]["repoAdded"]["id"]
 
 
-def main(name):
-    repo_id = repo_exists(name)
+def main(borgbase_api_client, name, know_hosts_file):
+    repo_id = repo_exists(borgbase_api_client, name)
 
     if repo_id:
         print("Repo exists with name", name)
     else:
         print("Repo not exists with name", name, ", create it ...")
-        repo_id = create_repo(name)
+        repo_id = create_repo(borgbase_api_client, name)
         # waiting a couple of second to prevent borgmatic fail
         time.sleep(2)
 
-    hostname = repo_hostname(repo_id)
+    hostname = repo_hostname(borgbase_api_client, repo_id)
     repo_path = repo_id + "@" + hostname + ":repo"
 
     with open(KNOWN_HOSTS_FILE, "w") as outfile:
@@ -139,4 +131,15 @@ def main(name):
 
 
 if __name__ == "__main__":
-    main(BACKUP_NAME)
+    TOKEN = os.environ.get("BORGBASE_KEY")
+    # MYSQL_USER = os.environ.get("MYSQL_USER")
+    # MYSQL_DB = os.environ.get("MYSQL_DB")
+    BACKUP_NAME = os.environ.get("BORGBASE_NAME")
+    KNOWN_HOSTS_FILE = os.environ.get("KNOWN_HOSTS_FILE")
+
+    if TOKEN and BACKUP_NAME and KNOWN_HOSTS_FILE:
+        main(GraphQLClient(TOKEN), BACKUP_NAME, KNOWN_HOSTS_FILE)
+    else:
+        sys.exit(
+            "Environnement variables missing, check BORGBASE_KEY, BORGBASE_NAME and KNOWN_HOSTS_FILE"
+        )
