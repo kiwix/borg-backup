@@ -3,7 +3,6 @@ from borgbase_api_client.client import GraphQLClient
 from borgbase_api_client.mutations import REPO_ADD, SSH_ADD
 import os
 import sys
-import pprint
 import subprocess
 import time
 
@@ -53,22 +52,17 @@ def repo_hostname(repo_id):
     }
     """
     res = client.execute(query)
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(res)
     for repo in res["data"]["repoList"]:
         if repo["id"] == repo_id:
             return repo["server"]["hostname"]
 
 
 def create_repo(name):
-    pp = pprint.PrettyPrinter(indent=4)
     new_key_vars = {
         "name": "Key for " + name,
         "keyData": open(CONFIG_DIR + ".ssh/" + name + "_id.pub").readline().strip(),
     }
-    pp.pprint(new_key_vars)
     res = client.execute(SSH_ADD, new_key_vars)
-    pp.pprint(res)
     new_key_id = res["data"]["sshAdd"]["keyAdded"]["id"]
 
     new_repo_vars = {
@@ -82,8 +76,6 @@ def create_repo(name):
     }
     res = client.execute(REPO_ADD, new_repo_vars)
 
-    pp.pprint(res)
-
     return res["data"]["repoAdd"]["repoAdded"]["id"]
 
 
@@ -95,7 +87,7 @@ def main(name):
     else:
         print("Repo not exists with name", name, ", create it ...")
         repo_id = create_repo(name)
-        #waiting a couple of second to prevent borgmatic fail
+        # waiting a couple of second to prevent borgmatic fail
         time.sleep(2)
 
     hostname = repo_hostname(repo_id)
@@ -120,7 +112,7 @@ def main(name):
         unknown_unencrypted_repo_access_is_ok: true
         borg_base_directory: "/repo"
         borg_cache_directory: "/cache"
-        archive_name_format: '{name}__backup__{now}'
+        archive_name_format: '{name}__backup__{{now}}'
     retention:
         keep_within: 48H
         keep_daily: 7
