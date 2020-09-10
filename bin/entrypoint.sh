@@ -86,7 +86,7 @@ function init_cron {
     } > ${BORGMATIC_CRON} && chmod 0500 ${BORGMATIC_CRON}
 
     #Initial backup on start
-    echo "@reboot ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" >> /etc/crontab
+    echo "@reboot root ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" >> /etc/crontab
 }
 
 init_ssh_config
