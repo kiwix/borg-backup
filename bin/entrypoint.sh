@@ -79,14 +79,14 @@ function init_cron {
     # Save borgmatic config
     cp ${BORGMATIC_CONFIG} /config/borgmatic.yaml
 
-    echo "Install Cron"
+    # Install Cron
     { \
         echo "#!/bin/sh" ; \
         echo "/usr/bin/flock -w 0 /dev/shm/cron.lock ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" ; \
     } > ${BORGMATIC_CRON} && chmod 0500 ${BORGMATIC_CRON}
 
     #Initial backup on start
-    echo "@reboot ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" >> /etc/crontab
+    echo "@reboot root ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" >> /etc/crontab
 }
 
 init_ssh_config
