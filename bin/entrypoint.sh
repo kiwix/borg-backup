@@ -79,7 +79,7 @@ function init_cron {
     # Save borgmatic config
     cp ${BORGMATIC_CONFIG} /config/borgmatic.yaml
 
-    echo "Install Cron"
+    # Install Cron
     { \
         echo "#!/bin/sh" ; \
         echo "/usr/bin/flock -w 0 /dev/shm/cron.lock ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" ; \
