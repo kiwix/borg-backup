@@ -82,6 +82,8 @@ def main(
     keep_yearly,
     db_type,
     db_name,
+    db_username,
+    db_password
 ):
     repo_id = repo_exists(borgbase_api_client, name)
 
@@ -132,6 +134,8 @@ def main(
     hooks:
         {db_type}_databases:
             - name: {db_name}
+              username : {db_username}
+              password : {db_password}
     """
             )
 
@@ -165,6 +169,8 @@ if __name__ == "__main__":
 
     DB_TYPE = os.environ.get("DB_TYPE")
     DB_NAME = os.environ.get("DB_NAME")
+    DB_USERNAME = os.environ.get("DB_USERNAME")
+    DB_PASSWORD = os.environ.get("DB_PASSWORD")
 
     if (
         TOKEN
@@ -187,6 +193,8 @@ if __name__ == "__main__":
             KEEP_YEARLY,
             DB_TYPE,
             DB_NAME,
+            DB_USERNAME,
+            DB_PASSWORD
         )
     else:
         sys.exit(
