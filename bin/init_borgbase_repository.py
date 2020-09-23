@@ -71,7 +71,16 @@ def create_repo(client, name):
     return res["data"]["repoAdd"]["repoAdded"]["id"]
 
 
-def main(borgbase_api_client, name, know_hosts_file):
+def main(
+    borgbase_api_client,
+    name,
+    know_hosts_file,
+    keep_within,
+    keep_daily,
+    keep_weekly,
+    keep_monthly,
+    keep_yearly,
+):
     repo_id = repo_exists(borgbase_api_client, name)
 
     if repo_id:
@@ -106,11 +115,11 @@ def main(borgbase_api_client, name, know_hosts_file):
         borg_cache_directory: "/cache"
         archive_name_format: '{name}__backup__{{now}}'
     retention:
-        keep_within: 48H
-        keep_daily: 7
-        keep_weekly: 4
-        keep_monthly: 12
-        keep_yearly: 1
+        keep_within: {keep_within}
+        keep_daily: {keep_daily}
+        keep_weekly: {keep_weekly}
+        keep_monthly: {keep_monthly}
+        keep_yearly: {keep_yearly}
         prefix: {name}__backup__
     """
         )
@@ -137,8 +146,23 @@ if __name__ == "__main__":
     BACKUP_NAME = os.environ.get("BORGBASE_NAME")
     KNOWN_HOSTS_FILE = os.environ.get("KNOWN_HOSTS_FILE")
 
+    KEEP_WITHIN = os.environ.get("KEEP_WITHIN")
+    KEEP_DAILY = os.environ.get("KEEP_DAILY")
+    KEEP_WEEKLY = os.environ.get("KEEP_WEEKLY")
+    KEEP_MONTHLY = os.environ.get("KEEP_MONTHLY")
+    KEEP_YEARLY = os.environ.get("KEEP_YEARLY")
+
     if TOKEN and BACKUP_NAME and KNOWN_HOSTS_FILE:
-        main(GraphQLClient(TOKEN), BACKUP_NAME, KNOWN_HOSTS_FILE)
+        main(
+            GraphQLClient(TOKEN),
+            BACKUP_NAME,
+            KNOWN_HOSTS_FILE,
+            KEEP_WITHIN,
+            KEEP_DAILY,
+            KEEP_WEEKLY,
+            KEEP_MONTHLY,
+            KEEP_YEARLY,
+        )
     else:
         sys.exit(
             "Environnement variables missing, check BORGBASE_KEY, BORGBASE_NAME and KNOWN_HOSTS_FILE"
