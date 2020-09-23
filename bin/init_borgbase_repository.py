@@ -152,7 +152,16 @@ if __name__ == "__main__":
     KEEP_MONTHLY = os.environ.get("KEEP_MONTHLY")
     KEEP_YEARLY = os.environ.get("KEEP_YEARLY")
 
-    if TOKEN and BACKUP_NAME and KNOWN_HOSTS_FILE:
+    if (
+        TOKEN
+        and BACKUP_NAME
+        and KNOWN_HOSTS_FILE
+        and KEEP_WITHIN
+        and KEEP_DAILY
+        and KEEP_WEEKLY
+        and KEEP_MONTHLY
+        and KEEP_YEARLY
+    ):
         main(
             GraphQLClient(TOKEN),
             BACKUP_NAME,
@@ -165,5 +174,5 @@ if __name__ == "__main__":
         )
     else:
         sys.exit(
-            "Environnement variables missing, check BORGBASE_KEY, BORGBASE_NAME and KNOWN_HOSTS_FILE"
+            "Environnement variables missing, check BORGBASE_KEY, BORGBASE_NAME, KNOWN_HOSTS_FILE and KEEP_*"
         )
