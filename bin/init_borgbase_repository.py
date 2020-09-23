@@ -80,6 +80,8 @@ def main(
     keep_weekly,
     keep_monthly,
     keep_yearly,
+    db_type,
+    db_name,
 ):
     repo_id = repo_exists(borgbase_api_client, name)
 
@@ -124,6 +126,15 @@ def main(
     """
         )
 
+        if (db_type == "postgresql" or db_type == "mysql") and db_name:
+            FILE.write(
+                f"""
+    hooks:
+        {db_type}_databases:
+            - name: {db_name}
+    """
+            )
+
     print("Init Borgmatic ...")
     subprocess.call(
         [
@@ -152,6 +163,9 @@ if __name__ == "__main__":
     KEEP_MONTHLY = os.environ.get("KEEP_MONTHLY")
     KEEP_YEARLY = os.environ.get("KEEP_YEARLY")
 
+    DB_TYPE = os.environ.get("DB_TYPE")
+    DB_NAME = os.environ.get("DB_NAME")
+
     if (
         TOKEN
         and BACKUP_NAME
@@ -171,6 +185,8 @@ if __name__ == "__main__":
             KEEP_WEEKLY,
             KEEP_MONTHLY,
             KEEP_YEARLY,
+            DB_TYPE,
+            DB_NAME,
         )
     else:
         sys.exit(
