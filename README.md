@@ -22,3 +22,6 @@ To backup a database we must define :
 - DB_USERNAME 
 - DB_PASSWORD
 
+## Author
+
+Florent Kaisser <florent.pro@kaisser.name>
