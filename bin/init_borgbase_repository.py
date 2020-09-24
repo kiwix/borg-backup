@@ -83,7 +83,9 @@ def main(
     db_type,
     db_name,
     db_username,
-    db_password
+    db_password,
+    db_hostname,
+    db_port,
 ):
     repo_id = repo_exists(borgbase_api_client, name)
 
@@ -136,6 +138,8 @@ def main(
             - name: {db_name}
               username : {db_username}
               password : {db_password}
+              hostname : {db_hostname}
+              port : {db_port}
     """
             )
 
@@ -171,6 +175,8 @@ if __name__ == "__main__":
     DB_NAME = os.environ.get("DB_NAME")
     DB_USERNAME = os.environ.get("DB_USERNAME")
     DB_PASSWORD = os.environ.get("DB_PASSWORD")
+    DB_HOSTNAME = os.environ.get("DB_HOSTNAME")
+    DB_PORT = os.environ.get("DB_PORT")
 
     if (
         TOKEN
@@ -194,7 +200,9 @@ if __name__ == "__main__":
             DB_TYPE,
             DB_NAME,
             DB_USERNAME,
-            DB_PASSWORD
+            DB_PASSWORD,
+            DB_HOSTNAME,
+            DB_PORT,
         )
     else:
         sys.exit(

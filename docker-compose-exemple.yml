@@ -1,0 +1,39 @@
+version: '3.1'
+services:
+  db:
+    image: mysql/mysql-server
+    restart: always
+    command: mysqld --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: test_db
+    ports:
+      - "3307:3306"
+    network_mode: host
+    healthcheck:
+      test: ["CMD", "mysql", "-h", "localhost", "-P", "3306", "--protocol=tcp", "-u", "root", "-proot"]
+      interval: 1s
+      timeout: 1s
+      retries: 5
+
+  backup:
+    image: backup-docker
+    volumes: 
+      - <dir_to_bakcup>
+      - "./.ssh:/root/.ssh"
+      - "./conf:/config"
+    environment:
+      - BW_EMAIL=<my_bitwarden_credential_email>
+      - BW_PASSWORD=<my_bitwarden_credential_password>
+      - BORGBASE_KEY=<my_borgbase_api_token>
+      - BORGBASE_NAME=test_borg
+      - DB_TYPE=mysql
+      - DB_NAME=test_db
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - DB_HOSTNAME=localhost
+      - DB_PORT=3306
+    network_mode: host
+    depends_on:
+      - db

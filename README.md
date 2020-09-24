@@ -13,8 +13,9 @@ docker run -d -v <barckupdir>:/storage  -e BW_EMAIL=<your_bitwarden_login_mail> 
 
 To backup a database we must define :
 
-- DB_TYPE : mysql or postgresql
-- DB_NAME
+- DB_TYPE : `mysql` or `postgresql`
+- DB_NAME : `all` to backup all databases on a host
 - DB_USERNAME 
 - DB_PASSWORD
-
+- DB_HOSTNAME
+- DB_PORT
