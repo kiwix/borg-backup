@@ -1,6 +1,10 @@
 # borg-backup
 Docker image for managing projects backup
 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![Public Chat](https://img.shields.io/badge/public-chat-green)](https://chat.kiwix.org)
+[![Slack](https://img.shields.io/badge/Slack-chat-E01E5A)](https://kiwixoffline.slack.com)
+
 ## Usage
 
 To backup files of `<barckupdir>` hourly with a new container :
