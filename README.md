@@ -23,7 +23,7 @@ docker run -d -v <barckupdir>:/storage \
        -e BW_PASSWORD=<your_bitwarden_master_password> \
        -e BORGBASE_NAME=test_borg \
        -e BORGBASE_KEY=<borgbase_api_token> \
-       -ti backup-docker
+       kiwix/borg-backup
 ```
 
 License
