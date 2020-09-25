@@ -4,9 +4,14 @@ FROM debian:buster-slim
 #
 LABEL maintainer="kiwix"
 
+ENV KEEP_WITHIN="48H"
+ENV KEEP_DAILY="7"
+ENV KEEP_WEEKLY="4"
+ENV KEEP_MONTHLY="12"
+ENV KEEP_YEARLY="1"
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl jq borgbackup vim python3 python3-pip python3-setuptools openssh-client unzip git cron && \
+    apt-get install -y --no-install-recommends curl jq borgbackup vim python3 python3-pip python3-setuptools openssh-client unzip git cron default-mysql-client postgresql-client && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/*
 

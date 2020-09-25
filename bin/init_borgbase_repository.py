@@ -71,7 +71,22 @@ def create_repo(client, name):
     return res["data"]["repoAdd"]["repoAdded"]["id"]
 
 
-def main(borgbase_api_client, name, know_hosts_file):
+def main(
+    borgbase_api_client,
+    name,
+    know_hosts_file,
+    keep_within,
+    keep_daily,
+    keep_weekly,
+    keep_monthly,
+    keep_yearly,
+    db_type,
+    db_name,
+    db_username,
+    db_password,
+    db_hostname,
+    db_port,
+):
     repo_id = repo_exists(borgbase_api_client, name)
 
     if repo_id:
@@ -106,14 +121,27 @@ def main(borgbase_api_client, name, know_hosts_file):
         borg_cache_directory: "/cache"
         archive_name_format: '{name}__backup__{{now}}'
     retention:
-        keep_within: 48H
-        keep_daily: 7
-        keep_weekly: 4
-        keep_monthly: 12
-        keep_yearly: 1
+        keep_within: {keep_within}
+        keep_daily: {keep_daily}
+        keep_weekly: {keep_weekly}
+        keep_monthly: {keep_monthly}
+        keep_yearly: {keep_yearly}
         prefix: {name}__backup__
     """
         )
+
+        if (db_type == "postgresql" or db_type == "mysql") and db_name:
+            FILE.write(
+                f"""
+    hooks:
+        {db_type}_databases:
+            - name: {db_name}
+              username : {db_username}
+              password : {db_password}
+              hostname : {db_hostname}
+              port : {db_port}
+    """
+            )
 
     print("Init Borgmatic ...")
     subprocess.call(
@@ -137,9 +165,46 @@ if __name__ == "__main__":
     BACKUP_NAME = os.environ.get("BORGBASE_NAME")
     KNOWN_HOSTS_FILE = os.environ.get("KNOWN_HOSTS_FILE")
 
-    if TOKEN and BACKUP_NAME and KNOWN_HOSTS_FILE:
-        main(GraphQLClient(TOKEN), BACKUP_NAME, KNOWN_HOSTS_FILE)
+    KEEP_WITHIN = os.environ.get("KEEP_WITHIN")
+    KEEP_DAILY = os.environ.get("KEEP_DAILY")
+    KEEP_WEEKLY = os.environ.get("KEEP_WEEKLY")
+    KEEP_MONTHLY = os.environ.get("KEEP_MONTHLY")
+    KEEP_YEARLY = os.environ.get("KEEP_YEARLY")
+
+    DB_TYPE = os.environ.get("DB_TYPE")
+    DB_NAME = os.environ.get("DB_NAME")
+    DB_USERNAME = os.environ.get("DB_USERNAME")
+    DB_PASSWORD = os.environ.get("DB_PASSWORD")
+    DB_HOSTNAME = os.environ.get("DB_HOSTNAME")
+    DB_PORT = os.environ.get("DB_PORT")
+
+    if (
+        TOKEN
+        and BACKUP_NAME
+        and KNOWN_HOSTS_FILE
+        and KEEP_WITHIN
+        and KEEP_DAILY
+        and KEEP_WEEKLY
+        and KEEP_MONTHLY
+        and KEEP_YEARLY
+    ):
+        main(
+            GraphQLClient(TOKEN),
+            BACKUP_NAME,
+            KNOWN_HOSTS_FILE,
+            KEEP_WITHIN,
+            KEEP_DAILY,
+            KEEP_WEEKLY,
+            KEEP_MONTHLY,
+            KEEP_YEARLY,
+            DB_TYPE,
+            DB_NAME,
+            DB_USERNAME,
+            DB_PASSWORD,
+            DB_HOSTNAME,
+            DB_PORT,
+        )
     else:
         sys.exit(
-            "Environnement variables missing, check BORGBASE_KEY, BORGBASE_NAME and KNOWN_HOSTS_FILE"
+            "Environnement variables missing, check BORGBASE_KEY, BORGBASE_NAME, KNOWN_HOSTS_FILE and KEEP_*"
         )

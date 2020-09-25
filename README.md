@@ -1,6 +1,8 @@
 Borg Backup Companion
 =====================
 
+## Usage
+=======
 The Borg Backup Companion allows you to easily backup your stuff in the Cloud.
 
 100% secure - 100% open source - 100% full featured - 100% easy.
@@ -26,8 +28,25 @@ docker run -d -v <barckupdir>:/storage \
        kiwix/borg-backup
 ```
 
+### Backup a database
+
+To backup a database we must define :
+
+- DB_TYPE : `mysql` or `postgresql`
+- DB_NAME : `all` to backup all databases on a host
+- DB_USERNAME 
+- DB_PASSWORD
+- DB_HOSTNAME
+- DB_PORT
+
+## Author
+
+Florent Kaisser <florent.pro@kaisser.name>
+
+=======
 License
 -------
 
 [GPLv3](https://www.gnu.org/licenses/gpl-3.0) or later, see
 [LICENSE](LICENSE) for more details.
+
