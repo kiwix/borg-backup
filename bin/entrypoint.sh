@@ -82,17 +82,21 @@ function init_cron {
     # Install Cron
     { \
         echo "#!/bin/sh" ; \
-        echo "/usr/bin/flock -w 0 /dev/shm/cron.lock ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" ; \
+        echo "/usr/bin/flock -w 0 /dev/shm/cron.lock ${BORGMATIC_CMD} 2>&1 | tee -a ${BORGMATIC_LOG_FILE} " ; \
     } > ${BORGMATIC_CRON} && chmod 0500 ${BORGMATIC_CRON}
 
     #Initial backup on start
-    echo "@reboot root ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" >> /etc/crontab
+    echo "@reboot root ${BORGMATIC_CMD} 2>&1 | tee -a ${BORGMATIC_LOG_FILE}" >> /etc/crontab
 }
+
+echo "Start initialization ..."
 
 init_ssh_config
 
 init_borgbase_repository.py
 
 init_cron
+
+echo "Initialization complete, run $CMD"
 
 $CMD
