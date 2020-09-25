@@ -16,7 +16,7 @@ services:
 
   backup:
     build: borg-backup
-    volumes: 
+    volumes:
       - <dir_to_bakcup>
       - "./.ssh:/root/.ssh"
       - "./conf:/config"
