@@ -5,7 +5,7 @@
 # ENV :
 # - BORGBASE_NAME : name of backup
 # - BORGBASE_KEY : Borgbase API key
-# - BW_EMAIL : BitWarden account email used to save key pair
+# - BW_EMAIL : BitWarden account email used to retrieve the key pair and the BorgBase token
 # - BW_PASSWORD : BitWarden master password
 
 SSH_DIR=`pwd`/.ssh
@@ -38,14 +38,18 @@ function generate_ssh_key {
     ssh-keygen -t ${SSH_KEY_TYPE} -a ${SSH_KDF} -N '' -C ${COMMENT} -f ${SSH_PRIV_KEY_FILE}
 }
 
-function save_key {
+function save_config {
     SSH_PUB_KEY=`cat ${SSH_PUB_KEY_FILE}`
     SSH_PRIV_KEY=`cat ${SSH_PRIV_KEY_FILE}`
     LOGIN_ENTRY='{"username":"'"${SSH_PUB_KEY}"'","password":"'"${SSH_PRIV_KEY}"'"}'
-    bw get template item | jq '.name = "'${BORGBASE_NAME}'"' | jq ".login = ${LOGIN_ENTRY}" | bw encode | bw create item
+    bw get template item |\
+      jq '.name = "'${BORGBASE_NAME}'"' |\
+      jq ".login = ${LOGIN_ENTRY}" |\
+      jq '.fields = [{"name": "BORGBASE_KEY", "value":"'"${BORGBASE_KEY}"'"}]'|\
+    bw encode | bw create item
 }
 
-function init_ssh_config {
+function init_config {
     export BW_SESSION=`bw login --raw ${BW_EMAIL} ${BW_PASSWORD}`
 
     if bw get username ${BORGBASE_NAME} > ${SSH_PUB_KEY_FILE}
@@ -54,13 +58,18 @@ function init_ssh_config {
         echo >> ${SSH_PUB_KEY_FILE}
         bw get password ${BORGBASE_NAME} > ${SSH_PRIV_KEY_FILE}
         echo >> ${SSH_PRIV_KEY_FILE}
-        chmod 600 ${SSH_PRIV_KEY_FILE} 
+        chmod 600 ${SSH_PRIV_KEY_FILE}
+        BORGBASE_KEY=`bw list items --search test_borg | jq '.[0] | .fields | .[] |  select(.name=="BORGBASE_KEY") | .value  2>/dev/null'`
+        export BORGBASE_KEY
     else
+        echo "Cannot get BorgBase SSH keys, please setup a new repo."
+        exit 1
+        #TODO move this part in an other script
         echo "Generate SSH key ..."
         generate_ssh_key
         
         echo "Save key to BitWarden"
-        save_key
+        save_config
     fi
 
     bw logout
@@ -75,7 +84,7 @@ function init_cron {
     BORGMATIC_CONFIG="/root/.config/borgmatic/config.yaml"
     BORGMATIC_CMD="/usr/local/bin/borgmatic -c ${BORGMATIC_CONFIG} --verbosity 1 --files"
     BORGMATIC_LOG_FILE="/dev/shm/borgmatic.log"
-    
+
     # Save borgmatic config
     cp ${BORGMATIC_CONFIG} /config/borgmatic.yaml
 
@@ -91,9 +100,11 @@ function init_cron {
 
 echo "Start initialization ..."
 
-init_ssh_config
+init_config
 
 init_borgbase_repository.py
+
+#TODO test borgbase access ok
 
 init_cron
 

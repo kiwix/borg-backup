@@ -160,8 +160,6 @@ def main(
 
 if __name__ == "__main__":
     TOKEN = os.environ.get("BORGBASE_KEY")
-    # MYSQL_USER = os.environ.get("MYSQL_USER")
-    # MYSQL_DB = os.environ.get("MYSQL_DB")
     BACKUP_NAME = os.environ.get("BORGBASE_NAME")
     KNOWN_HOSTS_FILE = os.environ.get("KNOWN_HOSTS_FILE")
 
