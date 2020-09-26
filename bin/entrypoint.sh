@@ -4,15 +4,12 @@
 #
 # ENV :
 # - BORGBASE_NAME : name of backup
-# - BORGBASE_KEY : Borgbase API key
 # - BW_EMAIL : BitWarden account email used to retrieve the key pair and the BorgBase token
 # - BW_PASSWORD : BitWarden master password
 
 SSH_DIR=`pwd`/.ssh
 SSH_PRIV_KEY_FILE=${SSH_DIR}/${BORGBASE_NAME}_id
 SSH_PUB_KEY_FILE=${SSH_PRIV_KEY_FILE}.pub
-SSH_KEY_TYPE=ed25519
-SSH_KDF=100
 
 CMD=$@
 
@@ -29,24 +26,7 @@ function create_ssh_config_file {
     "  UserKnownHostsFile ${KNOWN_HOSTS_FILE}" \
     > ${CONFIG_FILE}
 
-    chmod 600 ${CONFIG_FILE} 
-}
-
-function generate_ssh_key {
-    COMMENT=backup@${BORGBASE_NAME}
-    rm ${SSH_PRIV_KEY_FILE}* ${KNOWN_HOSTS_FILE} ${CONFIG_FILE}
-    ssh-keygen -t ${SSH_KEY_TYPE} -a ${SSH_KDF} -N '' -C ${COMMENT} -f ${SSH_PRIV_KEY_FILE}
-}
-
-function save_config {
-    SSH_PUB_KEY=`cat ${SSH_PUB_KEY_FILE}`
-    SSH_PRIV_KEY=`cat ${SSH_PRIV_KEY_FILE}`
-    LOGIN_ENTRY='{"username":"'"${SSH_PUB_KEY}"'","password":"'"${SSH_PRIV_KEY}"'"}'
-    bw get template item |\
-      jq '.name = "'${BORGBASE_NAME}'"' |\
-      jq ".login = ${LOGIN_ENTRY}" |\
-      jq '.fields = [{"name": "BORGBASE_KEY", "value":"'"${BORGBASE_KEY}"'"}]'|\
-    bw encode | bw create item
+    chmod 600 ${CONFIG_FILE}
 }
 
 function init_config {
@@ -62,14 +42,8 @@ function init_config {
         BORGBASE_KEY=`bw list items --search test_borg | jq '.[0] | .fields | .[] |  select(.name=="BORGBASE_KEY") | .value  2>/dev/null'`
         export BORGBASE_KEY
     else
-        echo "Cannot get BorgBase SSH keys, please setup a new repo."
+        echo "Cannot get BorgBase credentials, please setup the repo."
         exit 1
-        #TODO move this part in an other script
-        echo "Generate SSH key ..."
-        generate_ssh_key
-        
-        echo "Save key to BitWarden"
-        save_config
     fi
 
     bw logout

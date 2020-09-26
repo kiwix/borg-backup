@@ -205,8 +205,9 @@ if __name__ == "__main__":
                     DB_PORT,
                 )
             )
-        except Exception:
-            sys.exit("Cannot connect to BorgBase, check your key")
+        except Exception as e:
+            print("Cannot connect to BorgBase :", e)
+            exit(2)
     else:
         sys.exit(
             "Environnement variables missing, check BORGBASE_KEY, BORGBASE_NAME, KNOWN_HOSTS_FILE and KEEP_*"
