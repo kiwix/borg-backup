@@ -102,9 +102,10 @@ echo "Start initialization ..."
 
 init_config
 
-init_borgbase_repository.py
-
-#TODO test borgbase access ok
+if ! init_borgbase_repository.py
+then
+    exit 2
+fi
 
 init_cron
 

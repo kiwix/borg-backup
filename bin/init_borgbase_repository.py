@@ -144,7 +144,7 @@ def main(
             )
 
     print("Init Borgmatic ...")
-    subprocess.call(
+    return subprocess.call(
         [
             "borgmatic",
             "-c",
@@ -186,22 +186,27 @@ if __name__ == "__main__":
         and KEEP_MONTHLY
         and KEEP_YEARLY
     ):
-        main(
-            GraphQLClient(TOKEN),
-            BACKUP_NAME,
-            KNOWN_HOSTS_FILE,
-            KEEP_WITHIN,
-            KEEP_DAILY,
-            KEEP_WEEKLY,
-            KEEP_MONTHLY,
-            KEEP_YEARLY,
-            DB_TYPE,
-            DB_NAME,
-            DB_USERNAME,
-            DB_PASSWORD,
-            DB_HOSTNAME,
-            DB_PORT,
-        )
+        try:
+            sys.exit(
+                main(
+                    GraphQLClient(TOKEN),
+                    BACKUP_NAME,
+                    KNOWN_HOSTS_FILE,
+                    KEEP_WITHIN,
+                    KEEP_DAILY,
+                    KEEP_WEEKLY,
+                    KEEP_MONTHLY,
+                    KEEP_YEARLY,
+                    DB_TYPE,
+                    DB_NAME,
+                    DB_USERNAME,
+                    DB_PASSWORD,
+                    DB_HOSTNAME,
+                    DB_PORT,
+                )
+            )
+        except Exception:
+            sys.exit("Cannot connect to BorgBase, check your key")
     else:
         sys.exit(
             "Environnement variables missing, check BORGBASE_KEY, BORGBASE_NAME, KNOWN_HOSTS_FILE and KEEP_*"
