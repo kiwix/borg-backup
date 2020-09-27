@@ -7,7 +7,7 @@
 # - BW_EMAIL : BitWarden account email used to retrieve the key pair and the BorgBase token
 # - BW_PASSWORD : BitWarden master password
 
-SSH_DIR=`pwd`/.ssh
+SSH_DIR=$(pwd)/.ssh
 SSH_PRIV_KEY_FILE=${SSH_DIR}/${BORGBASE_NAME}_id
 SSH_PUB_KEY_FILE=${SSH_PRIV_KEY_FILE}.pub
 
@@ -30,7 +30,7 @@ function create_ssh_config_file {
 }
 
 function init_config {
-    export BW_SESSION=`bw login --raw ${BW_EMAIL} ${BW_PASSWORD}`
+    export BW_SESSION=$(bw login --raw ${BW_EMAIL} ${BW_PASSWORD})
 
     if bw get username ${BORGBASE_NAME} > ${SSH_PUB_KEY_FILE}
     then
@@ -39,7 +39,7 @@ function init_config {
         bw get password ${BORGBASE_NAME} > ${SSH_PRIV_KEY_FILE}
         echo >> ${SSH_PRIV_KEY_FILE}
         chmod 600 ${SSH_PRIV_KEY_FILE}
-        BORGBASE_KEY=`bw list items --search ${BORGBASE_NAME} | jq -r '.[0] | .fields | .[] |  select(.name=="BORGBASE_KEY") | .value'`
+        BORGBASE_KEY=$(bw list items --search ${BORGBASE_NAME} | jq -r '.[0] | .fields | .[] |  select(.name=="BORGBASE_KEY") | .value')
         export BORGBASE_KEY
     else
         echo "Cannot get BorgBase credentials, please setup the repo."

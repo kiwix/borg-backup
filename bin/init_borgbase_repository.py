@@ -146,7 +146,7 @@ def main(
     print("Init Borgmatic ...")
     return subprocess.call(
         [
-            "borgmatic",
+            "/usr/local/bin/borgmatic",
             "-c",
             BORGMATIC_CONFIG,
             "-v",
