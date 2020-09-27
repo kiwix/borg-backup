@@ -95,7 +95,7 @@ def main(
         print("Repo not exists with name", name, ", create it ...")
         repo_id = create_repo(borgbase_api_client, name)
         # waiting a couple of second to prevent borgmatic fail
-        time.sleep(2)
+        time.sleep(5)
 
     hostname = repo_hostname(borgbase_api_client, repo_id)
     repo_path = repo_id + "@" + hostname + ":repo"

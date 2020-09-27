@@ -39,11 +39,12 @@ function init_config {
         bw get password ${BORGBASE_NAME} > ${SSH_PRIV_KEY_FILE}
         echo >> ${SSH_PRIV_KEY_FILE}
         chmod 600 ${SSH_PRIV_KEY_FILE}
-        BORGBASE_KEY=`bw list items --search test_borg | jq '.[0] | .fields | .[] |  select(.name=="BORGBASE_KEY") | .value  2>/dev/null'`
+        BORGBASE_KEY=`bw list items --search ${BORGBASE_NAME} | jq -r '.[0] | .fields | .[] |  select(.name=="BORGBASE_KEY") | .value'`
         export BORGBASE_KEY
     else
         echo "Cannot get BorgBase credentials, please setup the repo."
-        exit 1
+        $CMD
+	exit $?
     fi
 
     bw logout
@@ -65,11 +66,11 @@ function init_cron {
     # Install Cron
     { \
         echo "#!/bin/sh" ; \
-        echo "/usr/bin/flock -w 0 /dev/shm/cron.lock ${BORGMATIC_CMD} 2>&1 | tee -a ${BORGMATIC_LOG_FILE} " ; \
+        echo "/usr/bin/flock -w 0 /dev/shm/cron.lock ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" ; \
     } > ${BORGMATIC_CRON} && chmod 0500 ${BORGMATIC_CRON}
 
     #Initial backup on start
-    echo "@reboot root ${BORGMATIC_CMD} 2>&1 | tee -a ${BORGMATIC_LOG_FILE}" >> /etc/crontab
+    echo "@reboot root ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" >> /etc/crontab
 }
 
 echo "Start initialization ..."
@@ -86,3 +87,5 @@ init_cron
 echo "Initialization complete, run $CMD"
 
 $CMD
+
+tail -f --retry  ${BORGMATIC_LOG_FILE}
