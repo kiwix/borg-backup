@@ -47,6 +47,32 @@ To backup a database we must define :
 - DB_HOSTNAME
 - DB_PORT
 
+## Restore backup
+
+### Prepare config
+From your BitWarden account, get the public and private keys (username and password item).
+Copy them in two files into your SSH dir (`$HOME/.ssh`), ex. `test_borg_id.pub` and `test_borg_id`.
+
+[Install Borg Backup](https://borgbackup.readthedocs.io/en/stable/installation.html)
+
+
+### List
+From your BorgBase account, find the repo location. You can copy this by click on first icon to left of repo name.
+Lauch : 
+```bash
+borg list <repo_location>
+```
+
+Copy the name of archive that you want to restore, ex . `test_borg__backup__2020-09-27T12:33:22`
+
+### Exract
+Extract the archive :
+```bash
+borg extract <repo_location>::<archive>
+```
+
+Your backup is in `storage` directory.
+
 ## Author
 
 Florent Kaisser <florent.pro@kaisser.name>
