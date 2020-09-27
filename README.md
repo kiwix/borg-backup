@@ -13,6 +13,18 @@ Using the full power of [Bitwarden](https://bitwarden.com),
 
 ## Usage
 
+### Setup new repository
+
+Before run bakup, we need to generate keys and save these in Bitwarden :
+
+```bash
+docker run -e BORGBASE_NAME=test_borg \
+           -e BORGBASE_KEY=<borgbase_api_token> \
+       kiwix/borg-backup setup-new-repo
+```
+
+### Run backup
+
 To backup files of `<barckupdir>` hourly with a new container :
 
 ```bash
