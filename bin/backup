@@ -43,8 +43,7 @@ function init_config {
         export BORGBASE_KEY
     else
         echo "Cannot get BorgBase credentials, please setup the repo."
-        $CMD
-	exit $?
+	exit 1 
     fi
 
     bw logout
@@ -84,8 +83,8 @@ fi
 
 init_cron
 
-echo "Initialization complete, run $CMD"
+echo "Initialization complete, run cron and wait ..."
 
-$CMD
+cron
 
 tail -f --retry  ${BORGMATIC_LOG_FILE}

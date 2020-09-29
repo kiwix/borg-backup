@@ -33,6 +33,6 @@ WORKDIR /root
 
 RUN mkdir -p .ssh .config/borgmatic/ /config /storage
 
-ENTRYPOINT ["entrypoint.sh"]
+#ENTRYPOINT ["entrypoint.sh"]
 
-CMD ["cron"]
+CMD ["backup"]
