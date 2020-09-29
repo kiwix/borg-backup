@@ -15,7 +15,7 @@ Using the full power of [Bitwarden](https://bitwarden.com),
 
 ### Setup new repository
 
-Before run bakup, we need to generate keys and save these in Bitwarden :
+Before starting a backup, we need to generate keys and save these in Bitwarden :
 
 ```bash
 docker run -e BORGBASE_NAME=test_borg \
@@ -25,15 +25,15 @@ docker run -e BORGBASE_NAME=test_borg \
 
 With :
 
-- `BORGBASE_NAME` : The uniq identifier of your repository. This name must not already used for an other item in bitwarden.
-- `BORGBASE_KEY` : BorgBase API token you can find your here : https://www.borgbase.com/account?tab=2
+- `BORGBASE_NAME` : A name you choose for your repository. Must be unique in borgbase and not be used neither in bitwarden.
+- `BORGBASE_KEY` : [BorgBase API token](https://www.borgbase.com/account?tab=2)
 
-### Run backup
+### Running backups
 
-To backup files of `<barckupdir>` hourly with a new container :
+To backup files from `<backupdir>` folder (hourly, start a new container with:
 
 ```bash
-docker run -d -v <barckupdir>:/storage \
+docker run -d -v <backupdir>:/storage \
        -e BW_EMAIL=<your_bitwarden_login_mail> \
        -e BW_PASSWORD=<your_bitwarden_master_password> \
        -e BORGBASE_NAME=test_borg \
@@ -41,11 +41,11 @@ docker run -d -v <barckupdir>:/storage \
        kiwix/borg-backup
 ```
 
-`BW_EMAIL` and `BW_PASSWORD` is your Bitwarden crédential.
+`BW_EMAIL` and `BW_PASSWORD` are your Bitwarden credentials.
 
 ### Backup a database
 
-To backup a database we must define :
+To backup a database you must specify the following as docker environment variables:
 
 - `DB_TYPE` : `mysql` or `postgresql`
 - `DB_NAME` : `all` to backup all databases on a host
@@ -54,9 +54,10 @@ To backup a database we must define :
 - `DB_HOSTNAME`
 - `DB_PORT`
 
-## Restore backup
+## Restoring a backup
 
 ### Prepare config
+
 From your BitWarden account, get the public and private keys (username and password item).
 Copy them in two files into your SSH dir (`$HOME/.ssh`), ex. `test_borg_id.pub` and `test_borg_id`.
 
@@ -64,16 +65,19 @@ Copy them in two files into your SSH dir (`$HOME/.ssh`), ex. `test_borg_id.pub` 
 
 
 ### List
-From your BorgBase account, find the repo location. You can copy this by click on first icon to left of repo name.
-Lauch : 
+
+From the [BorgBase UI](https://www.borgbase.com/repositories) (in *repositories*), copy your *repo path*. then:
+
 ```bash
 borg list <repo_location>
 ```
 
 Copy the name of archive that you want to restore, ex . `test_borg__backup__2020-09-27T12:33:22`
 
-### Exract
+### Extract
+
 Extract the archive :
+
 ```bash
 borg extract <repo_location>::<archive>
 ```
