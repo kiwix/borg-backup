@@ -12,7 +12,7 @@ os.environ["BORG_NEW_PASSPHRASE"] = ""
 CONFIG_DIR = "/root/"
 BORG_ENCRYPTION = "repokey"
 BORGMATIC_CONFIG = CONFIG_DIR + ".config/borgmatic/config.yaml"
-
+MAX_BORGMATIC_RERTY = 5
 
 def repo_exists(client, name):
     query = """
@@ -143,7 +143,8 @@ def main(
 
     print("Init Borgmatic ...")
 
-    while True:
+    retry = MAX_BORGMATIC_RERTY
+    while retry > 0:
         #gives time for server init and try again if needed
         time.sleep(2)
         ret = subprocess.call(
@@ -161,8 +162,9 @@ def main(
         if ret == 0 :
             return 0
         else:
+            retry = retry - 1
             print("Borgmatic init has failed, retry again ...")
-
+    print("Cannot init backup, check your Borgbase account")
 
 if __name__ == "__main__":
     TOKEN = os.environ.get("BORGBASE_KEY")
