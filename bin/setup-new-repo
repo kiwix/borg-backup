@@ -45,7 +45,7 @@ function save_keys {
 
 function share_key {
     bw list organizations | jq -r '.[] |  .id + " " + .name'
-    echo -n "To share with a organization, please enter it id (leave blank for no share) : "
+    echo -n "To share with a organization, please enter it id (leave blank for no share):"
     read id_org
 
     if [ -z $id_org ]
@@ -54,16 +54,14 @@ function share_key {
     fi
 
     bw list org-collections --organizationid $id_org | jq -r '.[] |  .id + " " + .name'
-    echo -n "Please enter a collection id : "
+    echo -n "Please enter a collection id: "
     read id_col
 
     echo "Share key ..."
     echo '["'$id_col'"]' | bw encode | bw share $ID_ITEM $id_org > /dev/null
 }
 
-bw logout
-
-until BW_SESSION=$(bw login --raw)
+until BW_SESSION=$(bw login --raw $BW_EMAIL $BW_PASSWORD)
 do
     echo "Please try again ..."
 done
