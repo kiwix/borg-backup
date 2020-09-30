@@ -94,8 +94,6 @@ def main(
     else:
         print("Repo not exists with name", name, ", create it ...")
         repo_id = create_repo(borgbase_api_client, name)
-        # waiting a couple of second to prevent borgmatic fail
-        time.sleep(5)
 
     hostname = repo_hostname(borgbase_api_client, repo_id)
     repo_path = repo_id + "@" + hostname + ":repo"
@@ -144,18 +142,26 @@ def main(
             )
 
     print("Init Borgmatic ...")
-    return subprocess.call(
-        [
-            "/usr/local/bin/borgmatic",
-            "-c",
-            BORGMATIC_CONFIG,
-            "-v",
-            "1",
-            "init",
-            "--encryption",
-            BORG_ENCRYPTION,
-        ]
-    )
+
+    while True:
+        #gives time for server and try again if needed
+        time.sleep(2)
+        ret = subprocess.call(
+            [
+                "/usr/local/bin/borgmatic",
+                "-c",
+                BORGMATIC_CONFIG,
+                "-v",
+                "1",
+                "init",
+                "--encryption",
+                BORG_ENCRYPTION,
+            ]
+        )
+        if ret == 0 :
+            return 0
+        else:
+            print("Borgmatic init has failed, retry again ...")
 
 
 if __name__ == "__main__":
