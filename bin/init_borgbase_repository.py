@@ -1,4 +1,8 @@
 #!/usr/bin/python3
+#
+# Author : Florent Kaisser <florent.pro@kaisser.name>
+#
+
 from borgbase_api_client.client import GraphQLClient
 from borgbase_api_client.mutations import REPO_ADD, SSH_ADD
 import os

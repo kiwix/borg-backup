@@ -6,24 +6,7 @@
 # - BORGBASE_NAME : name of backup
 # - BORGBASE_KEY : Borgbase API key
 
-SSH_DIR=$(pwd)/.ssh
-SSH_PRIV_KEY_FILE=${SSH_DIR}/${BORGBASE_NAME}_id
-SSH_PUB_KEY_FILE=${SSH_PRIV_KEY_FILE}.pub
-SSH_KEY_TYPE=ed25519
-SSH_KDF=100
-
-function create_ssh_config_file {
-    export KNOWN_HOSTS_FILE=${SSH_DIR}/known_hosts
-    CONFIG_FILE=${SSH_DIR}/config
-
-    echo -e \
-    "Host *.borgbase.com\n" \
-    "  IdentityFile ${SSH_PRIV_KEY_FILE}\n" \
-    "  UserKnownHostsFile ${KNOWN_HOSTS_FILE}" \
-    > ${CONFIG_FILE}
-
-    chmod 600 ${CONFIG_FILE}
-}
+source ssh_config
 
 function generate_ssh_key {
     COMMENT=backup@${BORGBASE_NAME}

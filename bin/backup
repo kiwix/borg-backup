@@ -7,27 +7,12 @@
 # - BW_EMAIL : BitWarden account email used to retrieve the key pair and the BorgBase token
 # - BW_PASSWORD : BitWarden master password
 
-SSH_DIR=$(pwd)/.ssh
-SSH_PRIV_KEY_FILE=${SSH_DIR}/${BORGBASE_NAME}_id
-SSH_PUB_KEY_FILE=${SSH_PRIV_KEY_FILE}.pub
-
 CMD=$@
+
+source ssh_config
 
 export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=yes 
 export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
-
-function create_ssh_config_file {
-    export KNOWN_HOSTS_FILE=${SSH_DIR}/known_hosts
-    CONFIG_FILE=${SSH_DIR}/config
-
-    echo -e \
-    "Host *.borgbase.com\n" \
-    "  IdentityFile ${SSH_PRIV_KEY_FILE}\n" \
-    "  UserKnownHostsFile ${KNOWN_HOSTS_FILE}" \
-    > ${CONFIG_FILE}
-
-    chmod 600 ${CONFIG_FILE}
-}
 
 function init_config {
     export BW_SESSION=$(bw login --raw ${BW_EMAIL} ${BW_PASSWORD})
