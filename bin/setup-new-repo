@@ -27,7 +27,6 @@ function create_ssh_config_file {
 
 function generate_ssh_key {
     COMMENT=backup@${BORGBASE_NAME}
-    rm ${SSH_PRIV_KEY_FILE}* ${KNOWN_HOSTS_FILE} ${CONFIG_FILE}
     ssh-keygen -t ${SSH_KEY_TYPE} -a ${SSH_KDF} -N '' -C ${COMMENT} -f ${SSH_PRIV_KEY_FILE}
 }
 

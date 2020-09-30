@@ -144,7 +144,7 @@ def main(
     print("Init Borgmatic ...")
 
     while True:
-        #gives time for server and try again if needed
+        #gives time for server init and try again if needed
         time.sleep(2)
         ret = subprocess.call(
             [
