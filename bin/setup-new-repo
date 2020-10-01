@@ -24,6 +24,7 @@ function save_keys {
 }
 
 function share_key {
+    echo -e "\nYour organizations:"
     bw list organizations | jq -r '.[] |  .id + " " + .name'
     echo -n "To share with a organization, please enter it id (leave blank for no share):"
     read id_org
@@ -60,6 +61,16 @@ function main {
 
     create_ssh_config_file
 
+    if [[ -z $BORGBASE_KEY ]]
+    then
+        echo -n "Your Borgbase API token (see https://www.borgbase.com/account?tab=2): "
+        read BORGBASE_KEY
+        export BORGBASE_KEY
+    fi
+
+    echo "Generate SSH key ..."
+    generate_ssh_key
+    
     if ! init_borgbase_repository.py
     then
         exit 2
