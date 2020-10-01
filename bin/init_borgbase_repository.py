@@ -1,4 +1,8 @@
 #!/usr/bin/python3
+#
+# Author : Florent Kaisser <florent.pro@kaisser.name>
+#
+
 from borgbase_api_client.client import GraphQLClient
 from borgbase_api_client.mutations import REPO_ADD, SSH_ADD
 import os
@@ -12,7 +16,7 @@ os.environ["BORG_NEW_PASSPHRASE"] = ""
 CONFIG_DIR = "/root/"
 BORG_ENCRYPTION = "repokey"
 BORGMATIC_CONFIG = CONFIG_DIR + ".config/borgmatic/config.yaml"
-
+MAX_BORGMATIC_RERTY = 5
 
 def repo_exists(client, name):
     query = """
@@ -94,8 +98,6 @@ def main(
     else:
         print("Repo not exists with name", name, ", create it ...")
         repo_id = create_repo(borgbase_api_client, name)
-        # waiting a couple of second to prevent borgmatic fail
-        time.sleep(2)
 
     hostname = repo_hostname(borgbase_api_client, repo_id)
     repo_path = repo_id + "@" + hostname + ":repo"
@@ -144,24 +146,32 @@ def main(
             )
 
     print("Init Borgmatic ...")
-    subprocess.call(
-        [
-            "borgmatic",
-            "-c",
-            BORGMATIC_CONFIG,
-            "-v",
-            "1",
-            "init",
-            "--encryption",
-            BORG_ENCRYPTION,
-        ]
-    )
 
+    retry = MAX_BORGMATIC_RERTY
+    while retry > 0:
+        #gives time for server init and try again if needed
+        time.sleep(2)
+        ret = subprocess.call(
+            [
+                "/usr/local/bin/borgmatic",
+                "-c",
+                BORGMATIC_CONFIG,
+                "-v",
+                "1",
+                "init",
+                "--encryption",
+                BORG_ENCRYPTION,
+            ]
+        )
+        if ret == 0 :
+            return 0
+        else:
+            retry = retry - 1
+            print("Borgmatic init has failed, retry again ...")
+    print("Cannot init backup, check your Borgbase account")
 
 if __name__ == "__main__":
     TOKEN = os.environ.get("BORGBASE_KEY")
-    # MYSQL_USER = os.environ.get("MYSQL_USER")
-    # MYSQL_DB = os.environ.get("MYSQL_DB")
     BACKUP_NAME = os.environ.get("BORGBASE_NAME")
     KNOWN_HOSTS_FILE = os.environ.get("KNOWN_HOSTS_FILE")
 
@@ -188,22 +198,28 @@ if __name__ == "__main__":
         and KEEP_MONTHLY
         and KEEP_YEARLY
     ):
-        main(
-            GraphQLClient(TOKEN),
-            BACKUP_NAME,
-            KNOWN_HOSTS_FILE,
-            KEEP_WITHIN,
-            KEEP_DAILY,
-            KEEP_WEEKLY,
-            KEEP_MONTHLY,
-            KEEP_YEARLY,
-            DB_TYPE,
-            DB_NAME,
-            DB_USERNAME,
-            DB_PASSWORD,
-            DB_HOSTNAME,
-            DB_PORT,
-        )
+        try:
+            sys.exit(
+                main(
+                    GraphQLClient(TOKEN),
+                    BACKUP_NAME,
+                    KNOWN_HOSTS_FILE,
+                    KEEP_WITHIN,
+                    KEEP_DAILY,
+                    KEEP_WEEKLY,
+                    KEEP_MONTHLY,
+                    KEEP_YEARLY,
+                    DB_TYPE,
+                    DB_NAME,
+                    DB_USERNAME,
+                    DB_PASSWORD,
+                    DB_HOSTNAME,
+                    DB_PORT,
+                )
+            )
+        except Exception as e:
+            print("Cannot connect to BorgBase :", e)
+            exit(2)
     else:
         sys.exit(
             "Environnement variables missing, check BORGBASE_KEY, BORGBASE_NAME, KNOWN_HOSTS_FILE and KEEP_*"

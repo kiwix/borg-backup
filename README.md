@@ -13,10 +13,27 @@ Using the full power of [Bitwarden](https://bitwarden.com),
 
 ## Usage
 
-To backup files of `<barckupdir>` hourly with a new container :
+### Setup new repository
+
+Before starting a backup, we need to generate keys and save these in Bitwarden :
 
 ```bash
-docker run -d -v <barckupdir>:/storage \
+docker run -e BORGBASE_NAME=test_borg \
+           -e BORGBASE_KEY=<borgbase_api_token> \
+       kiwix/borg-backup setup-new-repo
+```
+
+With :
+
+- `BORGBASE_NAME` : A name you choose for your repository. Must be unique in borgbase and not be used neither in bitwarden.
+- `BORGBASE_KEY` : [BorgBase API token](https://www.borgbase.com/account?tab=2)
+
+### Running backups
+
+To backup files from `<backupdir>` folder (hourly, start a new container with:
+
+```bash
+docker run -d -v <backupdir>:/storage \
        -e BW_EMAIL=<your_bitwarden_login_mail> \
        -e BW_PASSWORD=<your_bitwarden_master_password> \
        -e BORGBASE_NAME=test_borg \
@@ -24,16 +41,48 @@ docker run -d -v <barckupdir>:/storage \
        kiwix/borg-backup
 ```
 
+`BW_EMAIL` and `BW_PASSWORD` are your Bitwarden credentials.
+
 ### Backup a database
 
-To backup a database we must define :
+To backup a database you must specify the following as docker environment variables:
 
-- DB_TYPE : `mysql` or `postgresql`
-- DB_NAME : `all` to backup all databases on a host
-- DB_USERNAME 
-- DB_PASSWORD
-- DB_HOSTNAME
-- DB_PORT
+- `DB_TYPE` : `mysql` or `postgresql`
+- `DB_NAME` : `all` to backup all databases on a host
+- `DB_USERNAME`
+- `DB_PASSWORD`
+- `DB_HOSTNAME`
+- `DB_PORT`
+
+## Restoring a backup
+
+### Prepare config
+
+From your BitWarden account, get the public and private keys (username and password item).
+Copy them in two files into your SSH dir (`$HOME/.ssh`), ex. `test_borg_id.pub` and `test_borg_id`.
+
+[Install Borg Backup](https://borgbackup.readthedocs.io/en/stable/installation.html)
+
+
+### List
+
+From the [BorgBase UI](https://www.borgbase.com/repositories) (in *repositories*), copy your *repo path*. then:
+
+```bash
+borg list <repo_location>
+```
+
+Copy the name of archive that you want to restore, ex . `test_borg__backup__2020-09-27T12:33:22`
+
+### Extract
+
+Extract the archive :
+
+```bash
+borg extract <repo_location>::<archive>
+```
+
+Your backup is in `storage` directory.
 
 ## Author
 
