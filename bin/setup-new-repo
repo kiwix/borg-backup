@@ -44,6 +44,8 @@ function share_key {
 
 function main {
 
+    bw logout
+
     until BW_SESSION=$(bw login --raw $BW_EMAIL $BW_PASSWORD)
     do
         echo "Please try again ..."
