@@ -6,8 +6,6 @@
 # - BORGBASE_NAME : name of backup
 # - BORGBASE_KEY : Borgbase API key
 
-source ssh_config
-
 function generate_ssh_key {
     COMMENT=backup@${BORGBASE_NAME}
     ssh-keygen -t ${SSH_KEY_TYPE} -a ${SSH_KDF} -N '' -C ${COMMENT} -f ${SSH_PRIV_KEY_FILE}
@@ -43,24 +41,61 @@ function share_key {
     echo '["'$id_col'"]' | bw encode | bw share $ID_ITEM $id_org > /dev/null
 }
 
-until BW_SESSION=$(bw login --raw $BW_EMAIL $BW_PASSWORD)
+function main {
+
+    until BW_SESSION=$(bw login --raw $BW_EMAIL $BW_PASSWORD)
+    do
+        echo "Please try again ..."
+    done
+
+    export BW_SESSION
+
+    echo "Generate SSH key ..."
+    generate_ssh_key
+
+    echo "Save key to BitWarden"
+    save_keys
+
+    share_key
+
+    create_ssh_config_file
+
+    if ! init_borgbase_repository.py
+    then
+        exit 2
+    fi
+}
+
+function usage {
+    echo "Usage : $(basename $0) --name <repo-name>" &&\
+    echo -e "\t--name\t\tName of the existing backup repository"
+}
+
+POSITIONAL=()
+while [[ $# -gt 0 ]]
 do
-    echo "Please try again ..."
+key="$1"
+
+case $key in
+    -n|--name)
+    export BORGBASE_NAME="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    *)    # unknown option
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+esac
 done
 
-export BW_SESSION
-
-echo "Generate SSH key ..."
-generate_ssh_key
-
-echo "Save key to BitWarden"
-save_keys
-
-share_key
-
-create_ssh_config_file
-
-if ! init_borgbase_repository.py
+if [[ -z $BORGBASE_NAME ]]
 then
-    exit 2
+    echo "Please give a correct repository name"
+    usage
+    exit 1
 fi
+
+source ssh_config
+
+main

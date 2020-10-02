@@ -9,10 +9,10 @@
 
 CMD=$@
 
-source ssh_config
-
 export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=yes 
 export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
+
+PERIOD="daily"
 
 function init_config {
     export BW_SESSION=$(bw login --raw ${BW_EMAIL} ${BW_PASSWORD})
@@ -39,7 +39,7 @@ function init_config {
 }
 
 function init_cron {
-    BORGMATIC_CRON="/etc/cron.hourly/borgmatic"
+    BORGMATIC_CRON="/etc/cron.$PERIOD/borgmatic"
     BORGMATIC_CONFIG="/root/.config/borgmatic/config.yaml"
     BORGMATIC_CMD="/usr/local/bin/borgmatic -c ${BORGMATIC_CONFIG} --verbosity 1 --files"
     BORGMATIC_LOG_FILE="/dev/shm/borgmatic.log"
@@ -57,19 +57,68 @@ function init_cron {
     echo "@reboot root ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" >> /etc/crontab
 }
 
-echo "Start initialization ..."
+function main {
+    echo "Start initialization ..."
 
-init_config
+    init_config
 
-if ! init_borgbase_repository.py
+    if ! init_borgbase_repository.py
+    then
+        exit 2
+    fi
+
+    init_cron
+
+    echo "Initialization complete, run cron and wait ..."
+
+    cron
+
+    tail -f --retry  ${BORGMATIC_LOG_FILE}
+}
+
+function usage {
+    echo "Usage : $(basename $0) [--every <period>] --name <repo-name>" &&\
+    echo -e "\t--name\t\tName of the existing backup repository" &&\
+    echo -e "\t--every\t\tPeriod must be one of this value: hourly, daily, weekly, monthly (default : daily)"
+}
+
+
+POSITIONAL=()
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    -n|--name)
+    export BORGBASE_NAME="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -e|--every)
+    export PERIOD="$2"
+    if ! [[ "weekly monthly daily hourly" =~ (^|[[:space:]])$PERIOD($|[[:space:]]) ]]
+    then
+        echo "Please give a correct backup period"
+        usage
+        exit 1
+    fi
+    shift # past argument
+    shift # past value
+    ;;
+    *)    # unknown option
+    POSITIONAL+=("$1") # save it in an array for later
+    shift # past argument
+    ;;
+esac
+done
+
+if [[ -z $BORGBASE_NAME ]]
 then
-    exit 2
+    echo "Please give a correct repository name"
+    usage
+    exit 1
 fi
 
-init_cron
+source ssh_config
 
-echo "Initialization complete, run cron and wait ..."
-
-cron
-
-tail -f --retry  ${BORGMATIC_LOG_FILE}
+main
