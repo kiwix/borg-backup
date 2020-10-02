@@ -24,9 +24,10 @@ function save_keys {
 }
 
 function share_key {
+    echo -e "\nYour organizations:"
     bw list organizations | jq -r '.[] |  .id + " " + .name'
     echo -n "To share with a organization, please enter it id (leave blank for no share):"
-    read id_org
+    read -r id_org
 
     if [ -z $id_org ]
     then
@@ -35,7 +36,7 @@ function share_key {
 
     bw list org-collections --organizationid $id_org | jq -r '.[] |  .id + " " + .name'
     echo -n "Please enter a collection id: "
-    read id_col
+    read -r id_col
 
     echo "Share key ..."
     echo '["'$id_col'"]' | bw encode | bw share $ID_ITEM $id_org > /dev/null
@@ -59,6 +60,13 @@ function main {
     share_key
 
     create_ssh_config_file
+
+    if [[ -z $BORGBASE_KEY ]]
+    then
+        echo -n "Your Borgbase API token (see https://www.borgbase.com/account?tab=2): "
+        read -r BORGBASE_KEY
+        export BORGBASE_KEY
+    fi
 
     if ! init_borgbase_repository.py
     then
