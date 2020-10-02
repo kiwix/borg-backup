@@ -68,9 +68,6 @@ function main {
         export BORGBASE_KEY
     fi
 
-    echo "Generate SSH key ..."
-    generate_ssh_key
-    
     if ! init_borgbase_repository.py
     then
         exit 2
