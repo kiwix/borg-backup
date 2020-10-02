@@ -78,6 +78,92 @@ def create_repo(client, name):
     return res["data"]["repoAdd"]["repoAdded"]["id"]
 
 
+def write_config_databases(FILE, db_type, urls):
+    # if (db_type == "postgresql" or db_type == "mysql") and db_name:
+    FILE.write(
+        f"""
+        {db_type}_databases:"""
+    )
+    for url in urls:
+        db_name = url.path[1:]  # ignore initial "/"
+        if not dbname:
+            sys.exit("Incorrect database name")
+        FILE.write(
+            f"""
+            - name: {db_name}"""
+        )
+        if url.username:
+            FILE.write(
+                f"""
+              username : {url.username}"""
+            )
+        if url.password:
+            FILE.write(
+                f"""
+              password : {url.password}"""
+            )
+        if url.hostname:
+            FILE.write(
+                f"""
+              hostname : {url.hostname}"""
+            )
+        if url.port:
+            FILE.write(
+                f"""
+              port : {url.port}"""
+            )
+
+
+def write_config(
+    FILE,
+    name,
+    repo_path,
+    keep_within,
+    keep_daily,
+    keep_weekly,
+    keep_monthly,
+    keep_yearly,
+    databases,
+):
+
+    FILE.write(
+        f"""
+    location:
+        source_directories:
+            - /storage
+        repositories:
+            - {repo_path}
+    storage:
+        encryption_passphrase: ""
+        relocated_repo_access_is_ok: true
+        unknown_unencrypted_repo_access_is_ok: true
+        borg_base_directory: "/repo"
+        borg_cache_directory: "/cache"
+        archive_name_format: '{name}__backup__{{now}}'
+    retention:
+        keep_within: {keep_within}
+        keep_daily: {keep_daily}
+        keep_weekly: {keep_weekly}
+        keep_monthly: {keep_monthly}
+        keep_yearly: {keep_yearly}
+        prefix: {name}__backup__
+"""
+    )
+
+    databases_mysql = list(filter(lambda u: u.scheme == "mysql", databases))
+    databases_postgresql = list(filter(lambda u: u.scheme == "postgresql", databases))
+
+    print(databases_mysql)
+    print(databases_postgresql)
+
+    if len(databases_mysql) > 0 or len(databases_postgresql) > 0:
+        FILE.write("    hooks:")
+        if len(databases_mysql):
+            write_config_databases(FILE, "mysql", databases_mysql)
+        if len(databases_postgresql):
+            write_config_databases(FILE, "postgresql", databases_postgresql)
+
+
 def main(
     borgbase_api_client,
     name,
@@ -99,53 +185,23 @@ def main(
 
     hostname = repo_hostname(borgbase_api_client, repo_id)
     repo_path = repo_id + "@" + hostname + ":repo"
+    print("Use repo path :", repo_path)
 
     with open(KNOWN_HOSTS_FILE, "w") as outfile:
         subprocess.run(["ssh-keyscan", "-H", hostname], stdout=outfile)
 
-    print("Use repo path :", repo_path)
-
     with open(BORGMATIC_CONFIG, "w") as FILE:
-        FILE.write(
-            f"""
-    location:
-        source_directories:
-            - /storage
-        repositories:
-            - {repo_path}
-    storage:
-        encryption_passphrase: ""
-        relocated_repo_access_is_ok: true
-        unknown_unencrypted_repo_access_is_ok: true
-        borg_base_directory: "/repo"
-        borg_cache_directory: "/cache"
-        archive_name_format: '{name}__backup__{{now}}'
-    retention:
-        keep_within: {keep_within}
-        keep_daily: {keep_daily}
-        keep_weekly: {keep_weekly}
-        keep_monthly: {keep_monthly}
-        keep_yearly: {keep_yearly}
-        prefix: {name}__backup__
-    """
+        write_config(
+            FILE,
+            name,
+            name,
+            keep_within,
+            keep_daily,
+            keep_weekly,
+            keep_monthly,
+            keep_yearly,
+            databases,
         )
-
-        if len(databases) > 0:
-            FILE.write("hooks:")
-            for url in databases:
-                db_type = url.scheme
-                db_name = url.path[1:]  # ignore initial "/"
-                if (db_type == "postgresql" or db_type == "mysql") and db_name:
-                    FILE.write(
-                        f"""
-        {db_type}_databases:
-            - name: {db_name}
-              username : {url.username}
-              password : {url.password}
-              hostname : {url.hostname}
-              port : {url.port}
-            """
-                    )
 
     print("Init Borgmatic ...")
 
@@ -207,7 +263,7 @@ if __name__ == "__main__":
                     KEEP_WEEKLY,
                     KEEP_MONTHLY,
                     KEEP_YEARLY,
-                    list(map(urlparse, DATABASES.split("|||"))),
+                    list(map(urlparse, DATABASES.split("|||"))) if urlparse else [],
                 )
             )
         except Exception as e:
