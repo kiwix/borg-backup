@@ -19,6 +19,7 @@ BORG_ENCRYPTION = "repokey"
 BORGMATIC_CONFIG = CONFIG_DIR + ".config/borgmatic/config.yaml"
 MAX_BORGMATIC_RETRY = 5
 WAIT_BEFORE_BORGMATIC_RETRY = 5
+DB_SEPARATOR="|||"
 
 
 def repo_exists(client, name):
@@ -156,11 +157,11 @@ def write_config(
     print(databases_mysql)
     print(databases_postgresql)
 
-    if len(databases_mysql) > 0 or len(databases_postgresql) > 0:
+    if databases_mysql or databases_postgresql:
         FILE.write("    hooks:")
-        if len(databases_mysql):
+        if databases_mysql:
             write_config_databases(FILE, "mysql", databases_mysql)
-        if len(databases_postgresql):
+        if databases_postgresql:
             write_config_databases(FILE, "postgresql", databases_postgresql)
 
 
@@ -263,7 +264,7 @@ if __name__ == "__main__":
                     KEEP_WEEKLY,
                     KEEP_MONTHLY,
                     KEEP_YEARLY,
-                    list(map(urlparse, DATABASES.split("|||"))) if urlparse else [],
+                    list(map(urlparse, DATABASES.split(DB_SEPARATOR))) if urlparse else [],
                 )
             )
         except Exception as e:
