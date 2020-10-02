@@ -1,0 +1,74 @@
+#!/bin/bash
+#
+# Author : Florent Kaisser <florent.pro@kaisser.name>
+#
+# ENV :
+# - BW_EMAIL : BitWarden account email used to retrieve the key pair and the BorgBase token
+# - BW_PASSWORD : BitWarden master password
+
+function usage {
+    echo "Usage : $(basename $0) --name <repo-name> [--list|--extract <archive-name>]"  &&\
+    echo -e "\t--name\t\tName of the existing backup repository" &&\
+    echo -e "\t--list\t\tList all the available archives"
+    echo -e "\t--extract\t\tExtract the content of the archive <archive-name>"
+}
+
+export MAX_BORGMATIC_RETRY=0 # just create the config, not execute Borgmatic
+export ARCHIVE_NAME="latest"
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    -n|--name)
+    BORGBASE_NAME="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -l|--list)
+    list=true
+    shift # past argument
+    shift # past value
+    ;;
+    -e|--extract)
+    archive="$2"
+    extract=true
+    shift # past argument
+    shift # past value
+    ;;
+    *)    # unknown option
+    usage
+    exit 1
+    ;;
+esac
+done
+
+if [[ -z $BORGBASE_NAME ]]
+then
+    echo "Please give a correct repository name"
+    usage
+    exit 1
+fi
+
+source ssh_config
+
+init_config > /dev/null 2>&1
+
+if ! init_borgbase_repository.py
+then
+    exit 2
+fi > /dev/null 2>&1
+
+repo_location=$(python3 -c 'from ruamel.yaml import YAML ; print(YAML().load(open("/root/.config/borgmatic/config.yaml"))["location"]["repositories"][0])')
+
+if [ "$list" = true ]
+then
+    borg list "$repo_location"
+fi
+
+if [ "$extract" = true ]
+then
+    cd /restore
+    borg extract "$repo_location::$archive"
+fi
+

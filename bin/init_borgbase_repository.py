@@ -191,7 +191,7 @@ def main(
         write_config(
             FILE,
             name,
-            name,
+            repo_path,
             keep_within,
             keep_daily,
             keep_weekly,
@@ -199,6 +199,10 @@ def main(
             keep_yearly,
             databases,
         )
+
+    if max_retry == 0:
+        #just create conf file, not run Borgmatic
+        exit(0)
 
     print("Init Borgmatic ...")
 
@@ -239,8 +243,8 @@ if __name__ == "__main__":
     KEEP_MONTHLY = os.environ.get("KEEP_MONTHLY")
     KEEP_YEARLY = os.environ.get("KEEP_YEARLY")
 
-    MAX_BORGMATIC_RETRY = os.environ.get("MAX_BORGMATIC_RETRY")
-    WAIT_BEFORE_BORGMATIC_RETRY = os.environ.get("WAIT_BEFORE_BORGMATIC_RETRY")
+    MAX_BORGMATIC_RETRY = int(os.environ.get("MAX_BORGMATIC_RETRY"))
+    WAIT_BEFORE_BORGMATIC_RETRY = int(os.environ.get("WAIT_BEFORE_BORGMATIC_RETRY"))
 
     if (
         TOKEN

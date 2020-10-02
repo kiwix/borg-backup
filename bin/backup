@@ -14,30 +14,6 @@ export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
 
 PERIOD="daily"
 
-function init_config {
-    export BW_SESSION=$(bw login --raw ${BW_EMAIL} ${BW_PASSWORD})
-
-    if bw get username ${BORGBASE_NAME} > ${SSH_PUB_KEY_FILE}
-    then
-        echo "SSH key retrieval success"
-        echo >> ${SSH_PUB_KEY_FILE}
-        bw get password ${BORGBASE_NAME} > ${SSH_PRIV_KEY_FILE}
-        echo >> ${SSH_PRIV_KEY_FILE}
-        chmod 600 ${SSH_PRIV_KEY_FILE}
-        BORGBASE_KEY=$(bw list items --search ${BORGBASE_NAME} | jq -r '.[0] | .fields | .[] |  select(.name=="BORGBASE_KEY") | .value')
-        export BORGBASE_KEY
-    else
-        echo "Cannot get BorgBase credentials, please setup the repo."
-	exit 1 
-    fi
-
-    bw logout
-
-    create_ssh_config_file
-
-    chown -R root ${SSH_DIR}
-}
-
 function init_cron {
     BORGMATIC_CRON="/etc/cron.$PERIOD/borgmatic"
     BORGMATIC_CONFIG="/root/.config/borgmatic/config.yaml"
