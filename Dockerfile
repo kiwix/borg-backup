@@ -12,6 +12,11 @@ ENV KEEP_YEARLY="1"
 ENV DATABASES=""
 ENV MAX_BORGMATIC_RETRY="5"
 ENV WAIT_BEFORE_BORGMATIC_RETRY="5"
+ENV QUOTAS="2048"
+ENV REGION="eu"
+ENV PERIODICITY="1" # in day
+ENV BACKUP_HOUR=3
+ENV BACKUP_MINUTE=12
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl jq borgbackup vim python3 python3-pip python3-setuptools openssh-client unzip git cron default-mysql-client postgresql-client && \
