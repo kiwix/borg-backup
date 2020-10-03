@@ -34,7 +34,7 @@ function init_config {
         export BORGBASE_KEY
     else
         echo "Cannot get BorgBase credentials, please setup the repo."
-	exit 1 
+	exit 1
     fi
 
     bw logout

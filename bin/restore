@@ -63,7 +63,7 @@ repo_location=$(python3 -c 'from ruamel.yaml import YAML ; print(YAML().load(ope
 
 if [ "$list" = true ]
 then
-    echo "\n\nList avaible archives ..."
+    echo -e "\n\nList avaible archives ..."
     borg list "$repo_location"
 fi
 
@@ -80,7 +80,7 @@ then
         echo "No latest archive"
         exit 2
     fi
-    
+
     echo "Extract $archive ..."
 
     cd /restore

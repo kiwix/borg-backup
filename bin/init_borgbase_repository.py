@@ -17,7 +17,8 @@ os.environ["BORG_NEW_PASSPHRASE"] = ""
 CONFIG_DIR = "/root/"
 BORG_ENCRYPTION = "repokey"
 BORGMATIC_CONFIG = CONFIG_DIR + ".config/borgmatic/config.yaml"
-DB_SEPARATOR="|||"
+DB_SEPARATOR = "|||"
+
 
 def repo_exists(client, name):
     query = """
@@ -170,7 +171,7 @@ def main(
     keep_yearly,
     databases,
     max_retry,
-    wait_retry
+    wait_retry,
 ):
     repo_id = repo_exists(borgbase_api_client, name)
 
@@ -201,7 +202,7 @@ def main(
         )
 
     if max_retry == 0:
-        #just create conf file, not run Borgmatic
+        # just create conf file, not run Borgmatic
         exit(0)
 
     print("Init Borgmatic ...")
@@ -267,9 +268,11 @@ if __name__ == "__main__":
                     KEEP_WEEKLY,
                     KEEP_MONTHLY,
                     KEEP_YEARLY,
-                    list(map(urlparse, DATABASES.split(DB_SEPARATOR))) if urlparse else [],
+                    list(map(urlparse, DATABASES.split(DB_SEPARATOR)))
+                    if DATABASES
+                    else [],
                     MAX_BORGMATIC_RETRY,
-                    WAIT_BEFORE_BORGMATIC_RETRY
+                    WAIT_BEFORE_BORGMATIC_RETRY,
                 )
             )
         except Exception as e:
