@@ -87,7 +87,7 @@ def write_config_databases(FILE, db_type, urls):
     )
     for url in urls:
         db_name = url.path[1:]  # ignore initial "/"
-        if not dbname:
+        if not db_name:
             sys.exit("Incorrect database name")
         FILE.write(
             f"""
@@ -153,9 +153,6 @@ def write_config(
 
     databases_mysql = list(filter(lambda u: u.scheme == "mysql", databases))
     databases_postgresql = list(filter(lambda u: u.scheme == "postgresql", databases))
-
-    print(databases_mysql)
-    print(databases_postgresql)
 
     if databases_mysql or databases_postgresql:
         FILE.write("    hooks:")
