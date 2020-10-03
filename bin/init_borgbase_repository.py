@@ -5,6 +5,7 @@
 
 from borgbase_api_client.client import GraphQLClient
 from borgbase_api_client.mutations import REPO_ADD, SSH_ADD
+from urllib.parse import urlparse
 import os
 import sys
 import subprocess
@@ -18,6 +19,8 @@ BORG_ENCRYPTION = "repokey"
 BORGMATIC_CONFIG = CONFIG_DIR + ".config/borgmatic/config.yaml"
 MAX_BORGMATIC_RETRY = 5
 WAIT_BEFORE_BORGMATIC_RETRY = 5
+DB_SEPARATOR="|||"
+
 
 def repo_exists(client, name):
     query = """
@@ -76,41 +79,56 @@ def create_repo(client, name):
     return res["data"]["repoAdd"]["repoAdded"]["id"]
 
 
-def main(
-    borgbase_api_client,
+def write_config_databases(FILE, db_type, urls):
+    # if (db_type == "postgresql" or db_type == "mysql") and db_name:
+    FILE.write(
+        f"""
+        {db_type}_databases:"""
+    )
+    for url in urls:
+        db_name = url.path[1:]  # ignore initial "/"
+        if not db_name:
+            sys.exit("Incorrect database name")
+        FILE.write(
+            f"""
+            - name: {db_name}"""
+        )
+        if url.username:
+            FILE.write(
+                f"""
+              username : {url.username}"""
+            )
+        if url.password:
+            FILE.write(
+                f"""
+              password : {url.password}"""
+            )
+        if url.hostname:
+            FILE.write(
+                f"""
+              hostname : {url.hostname}"""
+            )
+        if url.port:
+            FILE.write(
+                f"""
+              port : {url.port}"""
+            )
+
+
+def write_config(
+    FILE,
     name,
-    know_hosts_file,
+    repo_path,
     keep_within,
     keep_daily,
     keep_weekly,
     keep_monthly,
     keep_yearly,
-    db_type,
-    db_name,
-    db_username,
-    db_password,
-    db_hostname,
-    db_port,
+    databases,
 ):
-    repo_id = repo_exists(borgbase_api_client, name)
 
-    if repo_id:
-        print("Repo exists with name", name)
-    else:
-        print("Repo not exists with name", name, ", create it ...")
-        repo_id = create_repo(borgbase_api_client, name)
-
-    hostname = repo_hostname(borgbase_api_client, repo_id)
-    repo_path = repo_id + "@" + hostname + ":repo"
-
-    with open(KNOWN_HOSTS_FILE, "w") as outfile:
-        subprocess.run(["ssh-keyscan", "-H", hostname], stdout=outfile)
-
-    print("Use repo path :", repo_path)
-
-    with open(BORGMATIC_CONFIG, "w") as FILE:
-        FILE.write(
-            f"""
+    FILE.write(
+        f"""
     location:
         source_directories:
             - /storage
@@ -130,21 +148,58 @@ def main(
         keep_monthly: {keep_monthly}
         keep_yearly: {keep_yearly}
         prefix: {name}__backup__
-    """
-        )
+"""
+    )
 
-        if (db_type == "postgresql" or db_type == "mysql") and db_name:
-            FILE.write(
-                f"""
-    hooks:
-        {db_type}_databases:
-            - name: {db_name}
-              username : {db_username}
-              password : {db_password}
-              hostname : {db_hostname}
-              port : {db_port}
-    """
-            )
+    databases_mysql = list(filter(lambda u: u.scheme == "mysql", databases))
+    databases_postgresql = list(filter(lambda u: u.scheme == "postgresql", databases))
+
+    if databases_mysql or databases_postgresql:
+        FILE.write("    hooks:")
+        if databases_mysql:
+            write_config_databases(FILE, "mysql", databases_mysql)
+        if databases_postgresql:
+            write_config_databases(FILE, "postgresql", databases_postgresql)
+
+
+def main(
+    borgbase_api_client,
+    name,
+    know_hosts_file,
+    keep_within,
+    keep_daily,
+    keep_weekly,
+    keep_monthly,
+    keep_yearly,
+    databases,
+):
+    repo_id = repo_exists(borgbase_api_client, name)
+
+    if repo_id:
+        print("Repo exists with name", name)
+    else:
+        print("Repo not exists with name", name, ", create it ...")
+        repo_id = create_repo(borgbase_api_client, name)
+
+    hostname = repo_hostname(borgbase_api_client, repo_id)
+    repo_path = repo_id + "@" + hostname + ":repo"
+    print("Use repo path :", repo_path)
+
+    with open(KNOWN_HOSTS_FILE, "w") as outfile:
+        subprocess.run(["ssh-keyscan", "-H", hostname], stdout=outfile)
+
+    with open(BORGMATIC_CONFIG, "w") as FILE:
+        write_config(
+            FILE,
+            name,
+            name,
+            keep_within,
+            keep_daily,
+            keep_weekly,
+            keep_monthly,
+            keep_yearly,
+            databases,
+        )
 
     print("Init Borgmatic ...")
 
@@ -177,18 +232,13 @@ if __name__ == "__main__":
     BACKUP_NAME = os.environ.get("BORGBASE_NAME")
     KNOWN_HOSTS_FILE = os.environ.get("KNOWN_HOSTS_FILE")
 
+    DATABASES = os.environ.get("DATABASES")
+
     KEEP_WITHIN = os.environ.get("KEEP_WITHIN")
     KEEP_DAILY = os.environ.get("KEEP_DAILY")
     KEEP_WEEKLY = os.environ.get("KEEP_WEEKLY")
     KEEP_MONTHLY = os.environ.get("KEEP_MONTHLY")
     KEEP_YEARLY = os.environ.get("KEEP_YEARLY")
-
-    DB_TYPE = os.environ.get("DB_TYPE")
-    DB_NAME = os.environ.get("DB_NAME")
-    DB_USERNAME = os.environ.get("DB_USERNAME")
-    DB_PASSWORD = os.environ.get("DB_PASSWORD")
-    DB_HOSTNAME = os.environ.get("DB_HOSTNAME")
-    DB_PORT = os.environ.get("DB_PORT")
 
     if (
         TOKEN
@@ -211,12 +261,7 @@ if __name__ == "__main__":
                     KEEP_WEEKLY,
                     KEEP_MONTHLY,
                     KEEP_YEARLY,
-                    DB_TYPE,
-                    DB_NAME,
-                    DB_USERNAME,
-                    DB_PASSWORD,
-                    DB_HOSTNAME,
-                    DB_PORT,
+                    list(map(urlparse, DATABASES.split(DB_SEPARATOR))) if DATABASES else [],
                 )
             )
         except Exception as e:
