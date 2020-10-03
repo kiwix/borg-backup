@@ -261,7 +261,7 @@ if __name__ == "__main__":
                     KEEP_WEEKLY,
                     KEEP_MONTHLY,
                     KEEP_YEARLY,
-                    list(map(urlparse, DATABASES.split(DB_SEPARATOR))) if urlparse else [],
+                    list(map(urlparse, DATABASES.split(DB_SEPARATOR))) if DATABASES else [],
                 )
             )
         except Exception as e:
