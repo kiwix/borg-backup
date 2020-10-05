@@ -4,7 +4,7 @@
 #
 # ENV :
 # - BW_EMAIL : BitWarden account email used to retrieve the key pair and the BorgBase token
-# - BW_PASSWORD : BitWarden master password
+# - BW_PASSWORD : BitWarden password
 
 function usage {
     echo "Usage : $(basename $0) --name <repo-name> [--list|--extract <archive-name>]"  &&\
@@ -21,7 +21,7 @@ key="$1"
 
 case $key in
     -n|--name)
-    BORGBASE_NAME="$2"
+    export BORGBASE_NAME="$2"
     shift # past argument
     shift # past value
     ;;
