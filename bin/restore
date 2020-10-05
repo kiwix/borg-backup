@@ -13,6 +13,7 @@ function usage {
     echo -e "\t--extract\t\tExtract the content of the archive <archive-name>"
 }
 
+export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=yes
 export MAX_BORGMATIC_RETRY=0 # just create the config, not execute Borgmatic
 export ARCHIVE_NAME="latest"
 while [[ $# -gt 0 ]]
