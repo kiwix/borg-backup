@@ -85,6 +85,6 @@ then
     echo "Extract $archive ..."
 
     cd /restore
-    borg extract "$repo_location::$archive"
+    borg --info extract --list  "$repo_location::$archive"
 fi
 
