@@ -17,9 +17,7 @@ os.environ["BORG_NEW_PASSPHRASE"] = ""
 CONFIG_DIR = "/root/"
 BORG_ENCRYPTION = "repokey"
 BORGMATIC_CONFIG = CONFIG_DIR + ".config/borgmatic/config.yaml"
-MAX_BORGMATIC_RETRY = 5
-WAIT_BEFORE_BORGMATIC_RETRY = 5
-DB_SEPARATOR="|||"
+DB_SEPARATOR = "|||"
 
 
 def repo_exists(client, name):
@@ -172,6 +170,8 @@ def main(
     keep_monthly,
     keep_yearly,
     databases,
+    max_retry,
+    wait_retry,
 ):
     repo_id = repo_exists(borgbase_api_client, name)
 
@@ -192,7 +192,7 @@ def main(
         write_config(
             FILE,
             name,
-            name,
+            repo_path,
             keep_within,
             keep_daily,
             keep_weekly,
@@ -201,12 +201,16 @@ def main(
             databases,
         )
 
+    if max_retry == 0:
+        # just create conf file, not run Borgmatic
+        exit(0)
+
     print("Init Borgmatic ...")
 
-    retry = MAX_BORGMATIC_RETRY
+    retry = max_retry
     while retry > 0:
         # gives time for server init and try again if needed
-        time.sleep(WAIT_BEFORE_BORGMATIC_RETRY)
+        time.sleep(wait_retry)
         ret = subprocess.call(
             [
                 "/usr/local/bin/borgmatic",
@@ -240,6 +244,9 @@ if __name__ == "__main__":
     KEEP_MONTHLY = os.environ.get("KEEP_MONTHLY")
     KEEP_YEARLY = os.environ.get("KEEP_YEARLY")
 
+    MAX_BORGMATIC_RETRY = int(os.environ.get("MAX_BORGMATIC_RETRY"))
+    WAIT_BEFORE_BORGMATIC_RETRY = int(os.environ.get("WAIT_BEFORE_BORGMATIC_RETRY"))
+
     if (
         TOKEN
         and BACKUP_NAME
@@ -261,7 +268,11 @@ if __name__ == "__main__":
                     KEEP_WEEKLY,
                     KEEP_MONTHLY,
                     KEEP_YEARLY,
-                    list(map(urlparse, DATABASES.split(DB_SEPARATOR))) if DATABASES else [],
+                    list(map(urlparse, DATABASES.split(DB_SEPARATOR)))
+                    if DATABASES
+                    else [],
+                    MAX_BORGMATIC_RETRY,
+                    WAIT_BEFORE_BORGMATIC_RETRY,
                 )
             )
         except Exception as e:
