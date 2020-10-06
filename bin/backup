@@ -4,8 +4,8 @@
 #
 # ENV :
 # - BORGBASE_NAME : name of backup
-# - BW_EMAIL : BitWarden account email used to retrieve the key pair and the BorgBase token
-# - BW_PASSWORD : BitWarden master password
+# - BITWARDEN_EMAIL : BitWarden account email used to retrieve the key pair and the BorgBase token
+# - BITWARDEN_PASSWORD : BitWarden master password
 
 CMD=$@
 

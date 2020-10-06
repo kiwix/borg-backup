@@ -46,7 +46,7 @@ function main {
 
     bw logout
 
-    until BW_SESSION=$(bw login --raw $BW_EMAIL $BW_PASSWORD)
+    until BW_SESSION=$(bw login --raw $BITWARDEN_EMAIL $BITWARDEN_PASSWORD)
     do
         echo "Please try again ..."
     done

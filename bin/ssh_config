@@ -21,7 +21,7 @@ function create_ssh_config_file {
 
 function init_config {
     bw logout
-    export BW_SESSION=$(bw login --raw ${BW_EMAIL} ${BW_PASSWORD})
+    export BW_SESSION=$(bw login --raw ${BITWARDEN_EMAIL} ${BITWARDEN_PASSWORD})
 
     if bw get username ${BORGBASE_NAME} > ${SSH_PUB_KEY_FILE}
     then
