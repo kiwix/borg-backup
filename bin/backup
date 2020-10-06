@@ -17,13 +17,24 @@ function init_cron {
     BORGMATIC_CONFIG="/root/.config/borgmatic/config.yaml"
     BORGMATIC_CMD="/usr/bin/flock -w 0 /dev/shm/cron.lock /usr/local/bin/borgmatic -c ${BORGMATIC_CONFIG} --verbosity 1 --files"
     BORGMATIC_LOG_FILE="/dev/shm/borgmatic.log"
+    PERIOD=${PERIODICITY:0:-1}
+
+    if [ "$PERIOD_UNIT" == "d" ]
+    then
+        CRON_DAY="*/${PERIOD}"
+        CRON_HOUR=${BACKUP_HOUR}
+    else
+        #if is not day, then is hour
+        CRON_DAY="*"
+        CRON_HOUR="*/${PERIOD}"
+    fi
 
     # Save borgmatic config
     cp ${BORGMATIC_CONFIG} /config/borgmatic.yaml
 
     {
         #Backup every periodicity
-        echo "${BACKUP_MINUTE} ${BACKUP_HOUR} */${PERIODICITY} * * ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" ; \
+        echo "${BACKUP_MINUTE} ${CRON_HOUR} ${CRON_DAY} * * root ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" ; \
         #Initial backup on start
         echo "@reboot root ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1"
     } >> /etc/crontab
@@ -51,7 +62,7 @@ function main {
 function usage {
     echo "Usage : $(basename $0) [--every <period>] --name <repo-name>" &&\
     echo -e "\t--name\t\tName of the existing backup repository" &&\
-    echo -e "\t--every\t\tPeriodicity in day (default : 1)"
+    echo -e "\t--every\t\tPeriodicity in day (ex: 2d) or hour (ex: 4h) (default : 1d)"
 }
 
 while [[ $# -gt 0 ]]
@@ -75,6 +86,15 @@ case $key in
     ;;
 esac
 done
+
+export PERIOD_UNIT=${PERIODICITY: -1}
+
+if ! ( [ "$PERIOD_UNIT" = "d" ] || [ "$PERIOD_UNIT" = "h" ] )
+then
+    echo "The periodicity must be in day (ex: 2d) or hour (ex: 4h)"
+    usage
+    exit 1
+fi
 
 if [[ -z $BORGBASE_NAME ]]
 then
