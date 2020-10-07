@@ -78,7 +78,10 @@ function main {
 
 function usage {
     echo "Usage : $(basename $0) --name <repo-name>" &&\
-    echo -e "\t--name\t\tName of the existing backup repository"
+    echo -e "\t--name\t\tName of the existing backup repository" &&\
+    echo -e "\t--alert-days\t\tPeriodicity of Borgbase alert in day(s) (default : 1d)" &&\
+    echo -e "\t--quota\t\tQuota in Mo (default : 2048, 0 : no quota)" &&\
+    echo -e "\t--region\t\tServer region (eu or us) (default : eu)"
 }
 
 POSITIONAL=()
@@ -92,12 +95,43 @@ case $key in
     shift # past argument
     shift # past value
     ;;
+    -a|--alert-days)
+    export ALERT="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    -q|--quota)
+    export QUOTA=$2
+    shift # past argument
+    shift # past value
+    ;;
+    -r|--region)
+    export REGION=$2
+    shift # past argument
+    shift # past value
+    ;;
     *)    # unknown option
     POSITIONAL+=("$1") # save it in an array for later
     shift # past argument
     ;;
 esac
 done
+
+export ALERT_UNIT=${ALERT: -1}
+
+if ! { [ "$REGION" = "eu" ] || [ "$REGION" = "us" ]; }
+then
+    echo "The region must be eu or us"
+    usage
+    exit 1
+fi
+
+if ! [ "$ALERT_UNIT" = "d" ]
+then
+    echo "The alert periodicity must be in day (ex: 2d)"
+    usage
+    exit 1
+fi
 
 if [[ -z $BORGBASE_NAME ]]
 then

@@ -55,7 +55,7 @@ def repo_hostname(client, repo_id):
             return repo["server"]["hostname"]
 
 
-def create_repo(client, name, region, quotas, alert):
+def create_repo(client, name, region, quota, alert):
     new_key_vars = {
         "name": "Key for " + name,
         "keyData": open(CONFIG_DIR + ".ssh/" + name + "_id.pub").readline().strip(),
@@ -68,8 +68,8 @@ def create_repo(client, name, region, quotas, alert):
         "appendOnlyKeys": [new_key_id],
         "region": region,
         "alertDays": alert,
-        "quota": quotas,
-        "quotaEnabled": quotas > 0,
+        "quota": quota,
+        "quotaEnabled": quota > 0,
     }
     res = client.execute(REPO_ADD, new_repo_vars)
 
@@ -169,19 +169,12 @@ def main(
     keep_monthly,
     keep_yearly,
     region,
-    quotas,
-    periodicity,
+    quota,
+    alert,
     databases,
     max_retry,
     wait_retry,
 ):
-
-    # the alert must be in day
-    if periodicity[-1] == "d":
-        alert = int(periodicity[:-1])
-    else:
-        # else backup period < on day
-        alert = 1
 
     repo_id = repo_exists(borgbase_api_client, name)
 
@@ -189,7 +182,7 @@ def main(
         print("Repo exists with name", name)
     else:
         print("Repo not exists with name", name, ", create it ...")
-        repo_id = create_repo(borgbase_api_client, name, region, quotas, alert)
+        repo_id = create_repo(borgbase_api_client, name, region, quota, alert)
 
     hostname = repo_hostname(borgbase_api_client, repo_id)
     repo_path = repo_id + "@" + hostname + ":repo"
@@ -256,8 +249,8 @@ if __name__ == "__main__":
 
     MAX_BORGMATIC_RETRY = int(os.environ.get("MAX_BORGMATIC_RETRY"))
     WAIT_BEFORE_BORGMATIC_RETRY = int(os.environ.get("WAIT_BEFORE_BORGMATIC_RETRY"))
-    QUOTAS = int(os.environ.get("QUOTAS"))
-    PERIODICITY = os.environ.get("PERIODICITY")
+    QUOTA = int(os.environ.get("QUOTA"))
+    ALERT = int(os.environ.get("ALERT")[:-1])
     REGION = os.environ.get("REGION")
 
     if (
@@ -282,8 +275,8 @@ if __name__ == "__main__":
                     KEEP_MONTHLY,
                     KEEP_YEARLY,
                     REGION,
-                    QUOTAS,
-                    PERIODICITY,
+                    QUOTA,
+                    ALERT,
                     list(map(urlparse, DATABASES.split(DB_SEPARATOR)))
                     if DATABASES
                     else [],

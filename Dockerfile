@@ -4,20 +4,29 @@ FROM debian:buster-slim
 #
 LABEL maintainer="kiwix"
 
+# Retention options
 ENV KEEP_WITHIN="48H"
 ENV KEEP_DAILY="7"
 ENV KEEP_WEEKLY="4"
 ENV KEEP_MONTHLY="12"
 ENV KEEP_YEARLY="1"
-ENV DATABASES=""
-ENV MAX_BORGMATIC_RETRY="5"
-ENV WAIT_BEFORE_BORGMATIC_RETRY="5"
-ENV QUOTAS="2048"
+# Quota on Borgbase account in Mo
+ENV QUOTA="2048"
+# server region (eu or us)
 ENV REGION="eu"
-# 1d = one day, 4h = four hours
+# Periodicity of Borgbase e-mail alert in day(s)
+ENV ALERT="1d"
+# The interval to launch backup on: units are m for minutes, h for hours, d for days, M for months
 ENV PERIODICITY="1d"
+# Day, hour and minute to which the backup is run
+ENV BACKUP_DAY=1
 ENV BACKUP_HOUR=3
 ENV BACKUP_MINUTE=12
+# No database to backup in default
+ENV DATABASES=""
+# Retry paramaeters when setup a new repo
+ENV MAX_BORGMATIC_RETRY="5"
+ENV WAIT_BEFORE_BORGMATIC_RETRY="5"
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl jq borgbackup vim python3 python3-pip python3-setuptools openssh-client unzip git cron default-mysql-client postgresql-client && \
