@@ -250,7 +250,7 @@ if __name__ == "__main__":
     MAX_BORGMATIC_RETRY = int(os.environ.get("MAX_BORGMATIC_RETRY"))
     WAIT_BEFORE_BORGMATIC_RETRY = int(os.environ.get("WAIT_BEFORE_BORGMATIC_RETRY"))
     QUOTA = int(os.environ.get("QUOTA"))
-    ALERT = int(os.environ.get("ALERT")[:-1])
+    ALERT = int(os.environ.get("ALERT"))
     REGION = os.environ.get("REGION")
 
     if (

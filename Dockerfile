@@ -10,12 +10,12 @@ ENV KEEP_DAILY="7"
 ENV KEEP_WEEKLY="4"
 ENV KEEP_MONTHLY="12"
 ENV KEEP_YEARLY="1"
-# Quota on Borgbase account in Mo
-ENV QUOTA="2048"
+# Quota on Borgbase account in Mo, non quota by default (0)
+ENV QUOTA="0"
 # server region (eu or us)
 ENV REGION="eu"
 # Periodicity of Borgbase e-mail alert in day(s)
-ENV ALERT="1d"
+ENV ALERT="1"
 # The interval to launch backup on: units are m for minutes, h for hours, d for days, M for months
 ENV PERIODICITY="1d"
 # Day, hour and minute to which the backup is run
