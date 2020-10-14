@@ -55,7 +55,7 @@ def repo_hostname(client, repo_id):
             return repo["server"]["hostname"]
 
 
-def create_repo(client, name):
+def create_repo(client, name, region, quota, alert):
     new_key_vars = {
         "name": "Key for " + name,
         "keyData": open(CONFIG_DIR + ".ssh/" + name + "_id.pub").readline().strip(),
@@ -65,12 +65,11 @@ def create_repo(client, name):
 
     new_repo_vars = {
         "name": name,
-        "quotaEnabled": False,
         "appendOnlyKeys": [new_key_id],
-        "region": "eu",
-        "alertDays": 1,
-        "quota": 2048,
-        "quotaEnabled": True,
+        "region": region,
+        "alertDays": alert,
+        "quota": quota,
+        "quotaEnabled": quota > 0,
     }
     res = client.execute(REPO_ADD, new_repo_vars)
 
@@ -169,17 +168,21 @@ def main(
     keep_weekly,
     keep_monthly,
     keep_yearly,
+    region,
+    quota,
+    alert,
     databases,
     max_retry,
     wait_retry,
 ):
+
     repo_id = repo_exists(borgbase_api_client, name)
 
     if repo_id:
         print("Repo exists with name", name)
     else:
         print("Repo not exists with name", name, ", create it ...")
-        repo_id = create_repo(borgbase_api_client, name)
+        repo_id = create_repo(borgbase_api_client, name, region, quota, alert)
 
     hostname = repo_hostname(borgbase_api_client, repo_id)
     repo_path = repo_id + "@" + hostname + ":repo"
@@ -246,6 +249,9 @@ if __name__ == "__main__":
 
     MAX_BORGMATIC_RETRY = int(os.environ.get("MAX_BORGMATIC_RETRY"))
     WAIT_BEFORE_BORGMATIC_RETRY = int(os.environ.get("WAIT_BEFORE_BORGMATIC_RETRY"))
+    QUOTA = int(os.environ.get("QUOTA"))
+    ALERT = int(os.environ.get("ALERT"))
+    REGION = os.environ.get("REGION")
 
     if (
         TOKEN
@@ -268,6 +274,9 @@ if __name__ == "__main__":
                     KEEP_WEEKLY,
                     KEEP_MONTHLY,
                     KEEP_YEARLY,
+                    REGION,
+                    QUOTA,
+                    ALERT,
                     list(map(urlparse, DATABASES.split(DB_SEPARATOR)))
                     if DATABASES
                     else [],

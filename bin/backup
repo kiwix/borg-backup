@@ -12,25 +12,46 @@ CMD=$@
 export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=yes
 export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
 
-PERIOD="daily"
-
 function init_cron {
-    BORGMATIC_CRON="/etc/cron.$PERIOD/borgmatic"
+    BORGMATIC_CRON="/etc/crontab"
     BORGMATIC_CONFIG="/root/.config/borgmatic/config.yaml"
-    BORGMATIC_CMD="/usr/local/bin/borgmatic -c ${BORGMATIC_CONFIG} --verbosity 1 --files"
+    BORGMATIC_CMD="/usr/bin/flock -w 0 /dev/shm/cron.lock /usr/local/bin/borgmatic -c ${BORGMATIC_CONFIG} --verbosity 1 --files"
     BORGMATIC_LOG_FILE="/dev/shm/borgmatic.log"
+
+    CRON_MONTH="*"
+    CRON_DAY="*"
+    CRON_HOUR="*"
+    CRON_MINUTE="*"
+
+    if [ "$period_unit" == "m" ]
+    then
+        CRON_MINUTE="*/${period_value}"
+    elif [ "$period_unit" == "h" ]
+    then
+        CRON_HOUR="*/${period_value}"
+        CRON_MINUTE="${BACKUP_MINUTE}"
+    elif [ "$period_unit" == "d" ]
+    then
+        CRON_DAY="*/${period_value}"
+        CRON_HOUR="${BACKUP_HOUR}"
+        CRON_MINUTE="${BACKUP_MINUTE}"
+    elif [ "$period_unit" == "M" ]
+    then
+        CRON_MONTH="*/${period_value}"
+        CRON_DAY="${BACKUP_DAY}"
+        CRON_HOUR="${BACKUP_HOUR}"
+        CRON_MINUTE="${BACKUP_MINUTE}"
+    fi
 
     # Save borgmatic config
     cp ${BORGMATIC_CONFIG} /config/borgmatic.yaml
 
-    # Install Cron
-    { \
-        echo "#!/bin/sh" ; \
-        echo "/usr/bin/flock -w 0 /dev/shm/cron.lock ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" ; \
-    } > ${BORGMATIC_CRON} && chmod 0500 ${BORGMATIC_CRON}
-
-    #Initial backup on start
-    echo "@reboot root ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" >> /etc/crontab
+    {
+        #Backup every periodicity
+        echo "${CRON_MINUTE} ${CRON_HOUR} ${CRON_DAY} ${CRON_MONTH} * root ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1" ; \
+        #Initial backup on start
+        echo "@reboot root ${BORGMATIC_CMD} >> ${BORGMATIC_LOG_FILE} 2>&1"
+    } >> /etc/crontab
 }
 
 function main {
@@ -55,11 +76,9 @@ function main {
 function usage {
     echo "Usage : $(basename $0) [--every <period>] --name <repo-name>" &&\
     echo -e "\t--name\t\tName of the existing backup repository" &&\
-    echo -e "\t--every\t\tPeriod must be one of this value: hourly, daily, weekly, monthly (default : daily)"
+    echo -e "\t--every\t\tThe interval to launch backup on: units are m for minutes, h for hours, d for days, M for months. The number of mimnute must be between 1 and 30, the number of hour between 1 and 12. the number of day between 1 and 14, and the number of month between 1 and 6."
 }
 
-
-POSITIONAL=()
 while [[ $# -gt 0 ]]
 do
 key="$1"
@@ -71,22 +90,54 @@ case $key in
     shift # past value
     ;;
     -e|--every)
-    export PERIOD="$2"
-    if ! [[ "weekly monthly daily hourly" =~ (^|[[:space:]])$PERIOD($|[[:space:]]) ]]
-    then
-        echo "Please give a correct backup period"
-        usage
-        exit 1
-    fi
+    export PERIODICITY="$2"
     shift # past argument
     shift # past value
     ;;
     *)    # unknown option
-    POSITIONAL+=("$1") # save it in an array for later
-    shift # past argument
+    usage
+    exit 2
     ;;
 esac
 done
+
+export period_unit=${PERIODICITY: -1}
+
+if ! { [ "$period_unit" = "m" ] || [ "$period_unit" = "h" ] || [ "$period_unit" = "d" ] || [ "$period_unit" = "M" ]; }
+then
+    echo "The interval to launch backup on: units are m for minutes, h for hours, d for days, M for months"
+    usage
+    exit 1
+else
+    export period_value=${PERIODICITY::-1}
+
+    if [ "$period_unit" = "m" ] && { [ $period_value -lt 1 ] || [ $period_value -gt 30 ]; }
+    then
+        echo "The number of minute must be between 1 and 30"
+        usage
+        exit 1
+    fi
+
+    if [ "$period_unit" = "h" ] && { [ $period_value -lt 1 ] || [ $period_value -gt 12 ]; }
+    then
+        echo "The number of hour must be between 1 and 12"
+        usage
+        exit 1
+    fi
+    if [ "$period_unit" = "d" ] && { [ $period_value -lt 1 ] || [ $period_value -gt 14 ]; }
+    then
+        echo "The number of day must be between 1 and 14"
+        usage
+        exit 1
+    fi
+
+    if [ "$period_unit" = "M" ] && { [ $period_value -lt 1 ] || [ $period_value -gt 6 ]; }
+    then
+        echo "The number of month must be between 1 and 6"
+        usage
+        exit 1
+    fi
+fi
 
 if [[ -z $BORGBASE_NAME ]]
 then
