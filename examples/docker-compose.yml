@@ -21,8 +21,8 @@ services:
       - "./.ssh:/root/.ssh"
       - "./conf:/config"
     environment:
-      - BW_EMAIL=<my_bitwarden_credential_email>
-      - BW_PASSWORD=<my_bitwarden_credential_password>
+      - BITWARDEN_EMAIL=<my_bitwarden_credential_email>
+      - BITWARDEN_PASSWORD=<my_bitwarden_credential_password>
       - BORGBASE_KEY=<my_borgbase_api_token>
       - BORGBASE_NAME=test_borg
       - DB_TYPE=mysql
