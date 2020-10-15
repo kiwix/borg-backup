@@ -95,24 +95,29 @@ case $key in
     shift # past argument
     shift # past value
     ;;
+    -b|--bitwarden)
+    export BITWARDEN_EMAIL="$2"
+    shift
+    shift
+    ;;
     -a|--alert-days)
     export ALERT="$2"
-    shift # past argument
-    shift # past value
+    shift
+    shift
     ;;
     -q|--quota)
     export QUOTA=$2
-    shift # past argument
-    shift # past value
+    shift
+    shift
     ;;
     -r|--region)
     export REGION=$2
-    shift # past argument
-    shift # past value
+    shift
+    shift
     ;;
     *)    # unknown option
-    POSITIONAL+=("$1") # save it in an array for later
-    shift # past argument
+    usage
+    exit 
     ;;
 esac
 done
