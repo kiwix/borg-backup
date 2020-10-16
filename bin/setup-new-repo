@@ -77,11 +77,12 @@ function main {
 }
 
 function usage {
-    echo "Usage : $(basename $0) --name <repo-name>" &&\
-    echo -e "\t--name\t\tName of the existing backup repository" &&\
-    echo -e "\t--alert-days\t\tPeriodicity of Borgbase alert in day(s) (default : 1)" &&\
-    echo -e "\t--quota\t\tQuota in Mo (no quota by default)" &&\
-    echo -e "\t--region\t\tServer region (eu or us) (default : eu)"
+    echo "Usage : $(basename $0) --name <repo-name> [--bitwarden <email>] [--alert-days <nb days>] [--quota <quota>] [--region <region>]" &&\
+    echo -e "\t<repo-name>\tName of the backup repository to create" &&\
+    echo -e "\t<email> \tBitwarden email" &&\
+    echo -e "\t<nb days>\tPeriodicity of Borgbase alert in day(s) (default : 1)" &&\
+    echo -e "\t<quota>\t\tQuota in Mo (no quota by default)" &&\
+    echo -e "\t<region>\tServer region (eu or us) (default : eu)"
 }
 
 POSITIONAL=()
