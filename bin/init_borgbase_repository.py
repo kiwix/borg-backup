@@ -55,6 +55,20 @@ def repo_hostname(client, repo_id):
             return repo["server"]["hostname"]
 
 
+def delete_repo(client, repo_id):
+    query = f"""
+      mutation{{
+        repoDelete(
+           id:"{repo_id}"
+        ){{
+           ok
+         }}
+      }}
+    """
+    res = client.execute(query)
+    return res["data"]["repoDelete"]
+
+
 def create_repo(client, name, region, quota, alert):
     new_key_vars = {
         "name": "Key for " + name,
@@ -176,6 +190,7 @@ def main(
     wait_retry,
 ):
 
+    repo_created = False
     repo_id = repo_exists(borgbase_api_client, name)
 
     if repo_id:
@@ -183,6 +198,7 @@ def main(
     else:
         print("Repo not exists with name", name, ", create it ...")
         repo_id = create_repo(borgbase_api_client, name, region, quota, alert)
+        repo_created = True
 
     hostname = repo_hostname(borgbase_api_client, repo_id)
     repo_path = repo_id + "@" + hostname + ":repo"
@@ -232,6 +248,13 @@ def main(
             retry = retry - 1
             print("Borgmatic init has failed, retry again ...")
     print("Cannot init backup, check your Borgbase account")
+
+    if repo_created:
+        print("Delete the repository created ...")
+        if delete_repo(borgbase_api_client, repo_id):
+            print("Done.")
+        else:
+            print("Unable to delete repository, please do it yourself.")
 
 
 if __name__ == "__main__":
