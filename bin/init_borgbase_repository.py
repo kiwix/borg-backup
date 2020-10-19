@@ -250,11 +250,15 @@ def main(
     print("Cannot init backup, check your Borgbase account")
 
     if repo_created:
-        print("Delete the repository created ...")
-        if delete_repo(borgbase_api_client, repo_id):
-            print("Done.")
-        else:
-            print("Unable to delete repository, please do it yourself.")
+        rep = input(
+            "A repository has been created, but it cannot be initialized, do you want do you want to delete it? [y/N]"
+        )
+        if rep[0] == "y":
+            print("Delete the repository created ...")
+            if delete_repo(borgbase_api_client, repo_id):
+                print("Done.")
+            else:
+                print("Unable to delete repository, please do it yourself.")
 
 
 if __name__ == "__main__":
