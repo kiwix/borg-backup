@@ -23,24 +23,70 @@ function save_keys {
     export ID_ITEM
 }
 
-function share_key {
-    echo -e "\nYour organizations:"
-    bw list organizations | jq -r '.[] |  .id + " " + .name'
-    echo -n "To share with a organization, please enter it id (leave blank for no share):"
-    read -r id_org
+function choose_collection {
+    jcol=$(bw list org-collections --organizationid $id_org)
+    ncol=$(echo $jcol | jq -r '.[] | .id' | wc -l)
 
-    if [ -z $id_org ]
-    then
-        return
+    if [[ $ncol -eq 1 ]]; then
+        export id_col=$(echo $jcol | jq -r '.[0] | .id')
+        name_col=$(echo $jcol | jq -r '.[0] | .name')
+        echo "Your organization ($name) only have a single Collection: $name_col, share with this Collection"
+    elif [[ $ncol -gt 1 ]]; then
+        echo "Your organization ($name) has $ncol collections:"
+        i=0
+        echo $jcol | jq -r '.[0] | .name +  " - " + .id' |\
+        while IFS= read -r line;
+        do
+            i=$(( $i + 1 ))
+            echo $i.  $line
+        done
+        echo -n "Enter it's number to share credential (default : 0): "
+        read -r rep
+
+        if [[ $rep -gt 0 ]] && [[ $rep -le $ncol ]] ; then
+            i=$(( $rep - 1 ))
+        else
+            i=0
+        fi
+
+        export id_col=$(echo $jcol | jq -r '.['$i'] | .id')
+        name_col=$(echo $jcol | jq -r '.['$i'] | .name')
+        echo "OK, Shared with “$name_col”"
+    else
+        # an oraganization must have a collection, this not happen.
+        echo "Fatal error : your organization ($name) have no collection, unable to continue"
+        exit 4
     fi
-
-    bw list org-collections --organizationid $id_org | jq -r '.[] |  .id + " " + .name'
-    echo -n "Please enter a collection id: "
-    read -r id_col
-
-    echo "Share key ..."
-    echo '["'$id_col'"]' | bw encode | bw share $ID_ITEM $id_org > /dev/null
 }
+
+function share_key {
+    bw list organizations | jq -r '.[] |  .id + " " + .name' |\
+        while IFS= read -r line;
+        do
+            export id_org=$(echo $line |  cut -d' ' -f1);
+            export name=$(echo $line |  cut -d' ' -f2);
+            echo -n "Do you want to share credentials with Organization “$name”? [y/N]"
+            read -r rep < /dev/tty
+            if [[ $rep == y* ]]; then
+                echo "OK, Shared with “$name”"
+                choose_collection
+                echo "Sharing key ..."
+                echo '["'$id_col'"]' | bw encode | bw share $ID_ITEM $id_org > /dev/null
+                if [ $? ] ; then
+                    # create a file, because var export don't work here ...
+                    touch .key_shared
+                    echo "Successful key sharing with $name!"
+                fi
+            fi
+        done
+    if [ -f .key_shared ] ; then 
+        echo "The credentials is well shared with at least one organization"
+    else
+        echo -n "The credentials is shared with no organization, are you sure you want this? [y/N]"
+        read -r rep
+        if [[ $rep != y* ]] ; then share_key ; fi
+    fi
+ }
 
 function main {
     retry=5
