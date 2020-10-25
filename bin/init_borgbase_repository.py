@@ -173,7 +173,7 @@ def main(
     alert,
     databases,
     max_retry,
-    wait_retry,
+    initial_delay_retry,
 ):
 
     repo_id = repo_exists(borgbase_api_client, name)
@@ -211,9 +211,11 @@ def main(
     print("Init Borgmatic ...")
 
     retry = max_retry
+    delay = initial_delay_retry
     while retry > 0:
         # gives time for server init and try again if needed
-        time.sleep(wait_retry)
+        print(f"Waiting for borgbase to create repository ({delay}s)...")
+        time.sleep(delay)
         ret = subprocess.call(
             [
                 "/usr/local/bin/borgmatic",
@@ -227,11 +229,12 @@ def main(
             ]
         )
         if ret == 0:
+            print("Successfully created repository!")
             return 0
         else:
             retry = retry - 1
-            print("Borgmatic init has failed, retry again ...")
-    print("Cannot init backup, check your Borgbase account")
+            delay = delay * 2
+    print(f"Cannot init backup (error {ret}), check your Borgbase account")
 
 
 if __name__ == "__main__":
