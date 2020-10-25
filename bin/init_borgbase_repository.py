@@ -73,7 +73,14 @@ def create_repo(client, name, region, quota, alert):
     }
     res = client.execute(REPO_ADD, new_repo_vars)
 
-    return res["data"]["repoAdd"]["repoAdded"]["id"]
+    if res["data"]["repoAdd"]:
+        return res["data"]["repoAdd"]["repoAdded"]["id"]
+        
+    print("Unable to create repository in BorgBase: ", end='')
+    if 'errors' in res and res['errors']:
+        return sys.exit(res['errors'][0]['message'])
+
+    return exit("unknown error")
 
 
 def write_config_databases(FILE, db_type, urls):
