@@ -25,7 +25,7 @@ ENV BACKUP_MINUTE=12
 # No database to backup in default
 ENV DATABASES=""
 # Retry paramaeters when setup a new repo
-ENV MAX_BORGMATIC_RETRY="5"
+ENV MAX_BORGMATIC_RETRY="10"
 ENV WAIT_BEFORE_BORGMATIC_RETRY="5"
 
 RUN apt-get update && \
