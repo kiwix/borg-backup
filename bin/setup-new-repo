@@ -89,22 +89,13 @@ function share_key {
  }
 
 function main {
-    retry=5
+    bitwarden_login
 
-    bw logout
-
-    until BW_SESSION=$(bw login --raw $BITWARDEN_EMAIL $BITWARDEN_PASSWORD)
-    do
-        retry=$retry-1
-        if [[ $retry -eq 0 ]] ; then
-            echo "Unable to log in your Bitwarden account. Please check your credential."
-            exit 3
-        fi
-        sleep 3
-        echo "Please try again ..."
-    done
-
-    export BW_SESSION
+    if bitwarden_get_ssh_pub_key
+    then
+        echo "Keys already exists with the name ${BORGBASE_NAME} in your Bitwarden account. If you want to use this tool with an existing repo, configure bitwarden manually."
+        exit 3
+    fi
 
     echo "Generate SSH key ..."
     generate_ssh_key
@@ -113,6 +104,8 @@ function main {
     save_keys
 
     share_key
+
+    bitwarden_logout
 
     create_ssh_config_file
 

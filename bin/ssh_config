@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source bitwarden
+
 SSH_DIR=$(pwd)/.ssh
 SSH_PRIV_KEY_FILE=${SSH_DIR}/${BORGBASE_NAME}_id
 SSH_PUB_KEY_FILE=${SSH_PRIV_KEY_FILE}.pub
@@ -20,10 +22,9 @@ function create_ssh_config_file {
 }
 
 function init_config {
-    bw logout
-    export BW_SESSION=$(bw login --raw ${BITWARDEN_EMAIL} ${BITWARDEN_PASSWORD})
+    bitwarden_login
 
-    if bw get username ${BORGBASE_NAME} > ${SSH_PUB_KEY_FILE}
+    if bitwarden_get_ssh_pub_key > ${SSH_PUB_KEY_FILE}
     then
         echo "SSH key retrieval success"
         echo >> ${SSH_PUB_KEY_FILE}
@@ -37,7 +38,7 @@ function init_config {
 	exit 1
     fi
 
-    bw logout
+    bitwarden_logout
 
     create_ssh_config_file
 
