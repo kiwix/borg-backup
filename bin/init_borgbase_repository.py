@@ -75,16 +75,15 @@ def create_repo(client, name, region, quota, alert):
 
     if res["data"]["repoAdd"]:
         return res["data"]["repoAdd"]["repoAdded"]["id"]
-        
-    print("Unable to create repository in BorgBase: ", end='')
-    if 'errors' in res and res['errors']:
-        return sys.exit(res['errors'][0]['message'])
+
+    print("Unable to create repository in BorgBase: ", end="")
+    if "errors" in res and res["errors"]:
+        return sys.exit(res["errors"][0]["message"])
 
     return exit("unknown error")
 
 
-def write_config_databases(FILE, db_type, urls):
-    # if (db_type == "postgresql" or db_type == "mysql") and db_name:
+def write_config_databases(FILE, db_type, urls, options=""):
     FILE.write(
         f"""
         {db_type}_databases:"""
@@ -116,6 +115,11 @@ def write_config_databases(FILE, db_type, urls):
             FILE.write(
                 f"""
               port : {url.port}"""
+            )
+        if options:
+            FILE.write(
+                f"""
+              options : "{options}" """
             )
 
 
@@ -161,7 +165,12 @@ def write_config(
     if databases_mysql or databases_postgresql:
         FILE.write("    hooks:")
         if databases_mysql:
-            write_config_databases(FILE, "mysql", databases_mysql)
+            write_config_databases(
+                FILE,
+                "mysql",
+                databases_mysql,
+                "--single-transaction --quick --lock-tables=false",
+            )
         if databases_postgresql:
             write_config_databases(FILE, "postgresql", databases_postgresql)
 
