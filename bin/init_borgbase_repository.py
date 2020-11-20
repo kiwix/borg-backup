@@ -148,16 +148,49 @@ def write_config(
         unknown_unencrypted_repo_access_is_ok: true
         borg_base_directory: "/repo"
         borg_cache_directory: "/cache"
-        archive_name_format: '{name}__backup__{{now}}'
-    retention:
-        keep_within: {keep_within}
-        keep_daily: {keep_daily}
-        keep_weekly: {keep_weekly}
-        keep_monthly: {keep_monthly}
-        keep_yearly: {keep_yearly}
-        prefix: {name}__backup__
-"""
+        archive_name_format: '{name}__backup__{{now}}'"""
     )
+    if (
+        int(keep_within[:-1]) > 0
+        or keep_daily > 0
+        or keep_weekly > 0
+        or keep_monthly > 0
+        or keep_yearly > 0
+    ):
+        FILE.write(
+            f"""
+    retention:"""
+        )
+        if int(keep_within[:-1]) > 0:
+            FILE.write(
+                f"""
+        keep_within: {keep_within}"""
+            )
+        if keep_daily > 0:
+            FILE.write(
+                f"""
+        keep_daily: {keep_daily}"""
+            )
+        if keep_weekly > 0:
+            FILE.write(
+                f"""
+        keep_weekly: {keep_weekly}"""
+            )
+        if keep_monthly > 0:
+            FILE.write(
+                f"""
+        keep_monthly: {keep_monthly}"""
+            )
+        if keep_yearly > 0:
+            FILE.write(
+                f"""
+        keep_yearly: {keep_yearly}"""
+            )
+        FILE.write(
+            f"""
+        prefix: {name}__backup__
+        """
+        )
 
     databases_mysql = list(filter(lambda u: u.scheme == "mysql", databases))
     databases_postgresql = list(filter(lambda u: u.scheme == "postgresql", databases))
@@ -261,10 +294,10 @@ if __name__ == "__main__":
     DATABASES = os.environ.get("DATABASES")
 
     KEEP_WITHIN = os.environ.get("KEEP_WITHIN")
-    KEEP_DAILY = os.environ.get("KEEP_DAILY")
-    KEEP_WEEKLY = os.environ.get("KEEP_WEEKLY")
-    KEEP_MONTHLY = os.environ.get("KEEP_MONTHLY")
-    KEEP_YEARLY = os.environ.get("KEEP_YEARLY")
+    KEEP_DAILY = int(os.environ.get("KEEP_DAILY"))
+    KEEP_WEEKLY = int(os.environ.get("KEEP_WEEKLY"))
+    KEEP_MONTHLY = int(os.environ.get("KEEP_MONTHLY"))
+    KEEP_YEARLY = int(os.environ.get("KEEP_YEARLY"))
 
     MAX_BORGMATIC_RETRY = int(os.environ.get("MAX_BORGMATIC_RETRY"))
     WAIT_BEFORE_BORGMATIC_RETRY = int(os.environ.get("WAIT_BEFORE_BORGMATIC_RETRY"))

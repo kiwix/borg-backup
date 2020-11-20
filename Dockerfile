@@ -5,9 +5,9 @@ FROM debian:buster-slim
 LABEL maintainer="kiwix"
 
 # Retention options
-ENV KEEP_WITHIN="48H"
+ENV KEEP_WITHIN="0H"
 ENV KEEP_DAILY="7"
-ENV KEEP_WEEKLY="4"
+ENV KEEP_WEEKLY="5"
 ENV KEEP_MONTHLY="12"
 ENV KEEP_YEARLY="1"
 # Quota on Borgbase account in Mo, non quota by default (0)
