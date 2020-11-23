@@ -117,9 +117,9 @@ docker run -v <some-folder>:/storage:ro \
 Other parameters can be configured via docker environment variables:
 
 - Retention options:
-  - `KEEP_WITHIN`: keep all archives less than this old (default: `48H`)
+  - `KEEP_WITHIN`: keep all archives less than this old (no used by default)
   - `KEEP_DAILY`: keep last archive of this many latest days (default: `7`)
-  - `KEEP_WEEKLY`: keep last archive of this many latest weeks (default: `4`)
+  - `KEEP_WEEKLY`: keep last archive of this many latest weeks (default: `5`)
   - `KEEP_MONTHLY`: keep last archive of this many latest months (default: `12`)
   - `KEEP_YEARLY`: keep last archive of this many latest years (default: `1`)
 - Databases backup:
