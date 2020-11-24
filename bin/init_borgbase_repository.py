@@ -189,7 +189,7 @@ def write_config(
         FILE.write(
             f"""
         prefix: {name}__backup__
-        """
+"""
         )
 
     databases_mysql = list(filter(lambda u: u.scheme == "mysql", databases))
@@ -280,9 +280,8 @@ def main(
         if ret == 0:
             print("Successfully created repository!")
             return 0
-        else:
-            retry = retry - 1
-            delay = delay * 2
+        retry = retry - 1
+        delay = delay * 2
     print(f"Cannot init backup (error {ret}), check your Borgbase account")
 
 
