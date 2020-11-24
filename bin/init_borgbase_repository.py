@@ -19,6 +19,9 @@ BORG_ENCRYPTION = "repokey"
 BORGMATIC_CONFIG = CONFIG_DIR + ".config/borgmatic/config.yaml"
 DB_SEPARATOR = "|||"
 
+def isAuthenticated(client):
+    res = client.execute("{isAuthenticated}")
+    return res["data"]["isAuthenticated"]
 
 def repo_exists(client, name):
     query = """
@@ -224,6 +227,9 @@ def main(
     max_retry,
     initial_delay_retry,
 ):
+    if(not isAuthenticated(borgbase_api_client)):
+        print("Unable to connect to your Borgbase account, please check your token.")
+        return (2)
 
     repo_id = repo_exists(borgbase_api_client, name)
 
@@ -255,7 +261,7 @@ def main(
 
     if max_retry == 0:
         # just create conf file, not run Borgmatic
-        exit(0)
+        return 0
 
     print("Init Borgmatic ...")
 
@@ -280,9 +286,8 @@ def main(
         if ret == 0:
             print("Successfully created repository!")
             return 0
-        else:
-            retry = retry - 1
-            delay = delay * 2
+        retry = retry - 1
+        delay = delay * 2
     print(f"Cannot init backup (error {ret}), check your Borgbase account")
 
 
@@ -315,7 +320,6 @@ if __name__ == "__main__":
         and KEEP_MONTHLY
         and KEEP_YEARLY
     ):
-        try:
             sys.exit(
                 main(
                     GraphQLClient(TOKEN),
@@ -336,9 +340,6 @@ if __name__ == "__main__":
                     WAIT_BEFORE_BORGMATIC_RETRY,
                 )
             )
-        except Exception as e:
-            print("Cannot connect to BorgBase :", e)
-            exit(2)
     else:
         sys.exit(
             "Environnement variables missing, check BORGBASE_KEY, BORGBASE_NAME, KNOWN_HOSTS_FILE and KEEP_*"
