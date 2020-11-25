@@ -97,6 +97,13 @@ function main {
         exit 3
     fi
 
+    if [[ -z $BORGBASE_KEY ]]
+    then
+        echo -n "Your Borgbase API token (see https://www.borgbase.com/account?tab=2): "
+        read -r BORGBASE_KEY
+        export BORGBASE_KEY
+    fi
+
     echo "Generate SSH key ..."
     generate_ssh_key
 
@@ -108,13 +115,6 @@ function main {
     bitwarden_logout
 
     create_ssh_config_file
-
-    if [[ -z $BORGBASE_KEY ]]
-    then
-        echo -n "Your Borgbase API token (see https://www.borgbase.com/account?tab=2): "
-        read -r BORGBASE_KEY
-        export BORGBASE_KEY
-    fi
 
     if ! init_borgbase_repository.py
     then
