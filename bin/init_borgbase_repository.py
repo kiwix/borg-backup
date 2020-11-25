@@ -84,43 +84,22 @@ def create_repo(client, name, region, quota, alert):
 
 
 def write_config_databases(FILE, db_type, urls, options=""):
-    FILE.write(
-        f"""
-        {db_type}_databases:"""
-    )
+    FILE.write(f"    {db_type}_databases:\n")
     for url in urls:
         db_name = url.path[1:]  # ignore initial "/"
         if not db_name:
             sys.exit("Incorrect database name")
-        FILE.write(
-            f"""
-            - name: {db_name}"""
-        )
+        FILE.write(f"        - name: {db_name}\n")
         if url.username:
-            FILE.write(
-                f"""
-              username : {url.username}"""
-            )
+            FILE.write(f"          username : {url.username}\n")
         if url.password:
-            FILE.write(
-                f"""
-              password : {url.password}"""
-            )
+            FILE.write(f"          password : {url.password}\n")
         if url.hostname:
-            FILE.write(
-                f"""
-              hostname : {url.hostname}"""
-            )
+            FILE.write(f"          hostname : {url.hostname}\n")
         if url.port:
-            FILE.write(
-                f"""
-              port : {url.port}"""
-            )
+            FILE.write(f"          port : {url.port}\n")
         if options:
-            FILE.write(
-                f"""
-              options : "{options}" """
-            )
+            FILE.write(f'          options : "{options}"\n')
 
 
 def write_config(
@@ -136,19 +115,19 @@ def write_config(
 ):
 
     FILE.write(
-        f"""
-    location:
-        source_directories:
-            - /storage
-        repositories:
-            - {repo_path}
-    storage:
-        encryption_passphrase: ""
-        relocated_repo_access_is_ok: true
-        unknown_unencrypted_repo_access_is_ok: true
-        borg_base_directory: "/repo"
-        borg_cache_directory: "/cache"
-        archive_name_format: '{name}__backup__{{now}}'"""
+        f"""location:
+    source_directories:
+        - /storage
+    repositories:
+        - {repo_path}
+storage:
+    encryption_passphrase: ""
+    relocated_repo_access_is_ok: true
+    unknown_unencrypted_repo_access_is_ok: true
+    borg_base_directory: "/repo"
+    borg_cache_directory: "/cache"
+    archive_name_format: '{name}__backup__{{now}}'
+"""
     )
     if (
         int(keep_within[:-1]) > 0
@@ -157,46 +136,24 @@ def write_config(
         or keep_monthly > 0
         or keep_yearly > 0
     ):
-        FILE.write(
-            f"""
-    retention:"""
-        )
+        FILE.write("retention:\n")
         if int(keep_within[:-1]) > 0:
-            FILE.write(
-                f"""
-        keep_within: {keep_within}"""
-            )
+            FILE.write(f"    keep_within: {keep_within}\n")
         if keep_daily > 0:
-            FILE.write(
-                f"""
-        keep_daily: {keep_daily}"""
-            )
+            FILE.write(f"    keep_daily: {keep_daily}\n")
         if keep_weekly > 0:
-            FILE.write(
-                f"""
-        keep_weekly: {keep_weekly}"""
-            )
+            FILE.write(f"    keep_weekly: {keep_weekly}\n")
         if keep_monthly > 0:
-            FILE.write(
-                f"""
-        keep_monthly: {keep_monthly}"""
-            )
+            FILE.write(f"    keep_monthly: {keep_monthly}\n")
         if keep_yearly > 0:
-            FILE.write(
-                f"""
-        keep_yearly: {keep_yearly}"""
-            )
-        FILE.write(
-            f"""
-        prefix: {name}__backup__
-        """
-        )
+            FILE.write(f"    keep_yearly: {keep_yearly}\n")
+        FILE.write(f"    prefix: {name}__backup__\n")
 
     databases_mysql = list(filter(lambda u: u.scheme == "mysql", databases))
     databases_postgresql = list(filter(lambda u: u.scheme == "postgresql", databases))
 
     if databases_mysql or databases_postgresql:
-        FILE.write("    hooks:")
+        FILE.write("hooks:\n")
         if databases_mysql:
             write_config_databases(
                 FILE,
@@ -280,9 +237,8 @@ def main(
         if ret == 0:
             print("Successfully created repository!")
             return 0
-        else:
-            retry = retry - 1
-            delay = delay * 2
+        retry = retry - 1
+        delay = delay * 2
     print(f"Cannot init backup (error {ret}), check your Borgbase account")
 
 
