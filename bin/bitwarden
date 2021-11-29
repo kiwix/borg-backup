@@ -5,7 +5,7 @@ function bitwarden_login {
 
     bw logout
 
-    until BW_SESSION=$(bw login --raw ${BITWARDEN_EMAIL} ${BITWARDEN_PASSWORD})
+    until BW_SESSION=$(bw login --apikey)
     do
         retry=$retry-1
         if [[ $retry -eq 0 ]] ; then

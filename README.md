@@ -68,6 +68,8 @@ In order to store what we need in Bitwarden (SSH keypairs, BorgBase token) but w
 1. using the invitation link your received on that email address, create one backup Bitwarden account (email/password)
 1. login to Bitwarden UI using master account and confirm membership
 
+We'll be using an *API Key* to connect to your read-only bitwarden account so from the bitwarden UI, goto *Settings* and *View API Key*. Note the value for `client_id` and `client_secret`. Those will be referred to later as `BW_CLIENTID` and `BW_CLIENTSECRET`.
+
 ## Usage
 
 Every *repository* or service you want to backup needs to be initialized once before you start backing-up your data.
@@ -107,8 +109,8 @@ The following is unattended and should be configured along your service. It runs
 
 ```sh
 docker run -v <some-folder>:/storage:ro \
-    -e BITWARDEN_EMAIL=<bitwarden-readonly-email> \
-    -e BITWARDEN_PASSWORD=<bitwarden-readonly-password> \
+    -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
+    -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
     kiwix/borg-backup backup --name <repo-name> --every <period>
 ```
 
@@ -139,8 +141,8 @@ Your backups are composed of *archives* or *versions* of your data. Use this too
 ```sh
 docker run \
     -v /data/temp:/restore:rw \
-    -e BITWARDEN_EMAIL=<bitwarden-readonly-email> \
-    -e BITWARDEN_PASSWORD=<bitwarden-readonly-password> \
+    -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
+    -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
     kiwix/borg-backup restore --name <repo-name> --list
 ```
 
@@ -149,8 +151,8 @@ This will list all the available archives. Note the name of the one you'll want 
 ```sh
 docker run \
     -v /data/temp:/restore:rw \
-    -e BITWARDEN_EMAIL=<bitwarden-readonly-email> \
-    -e BITWARDEN_PASSWORD=<bitwarden-readonly-password> \
+    -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
+    -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
     kiwix/borg-backup restore --name <repo-name> --extract "<archive-name>"
 ```
 

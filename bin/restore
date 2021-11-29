@@ -3,8 +3,8 @@
 # Author : Florent Kaisser <florent.pro@kaisser.name>
 #
 # ENV :
-# - BITWARDEN_EMAIL : BitWarden account email used to retrieve the key pair and the BorgBase token
-# - BITWARDEN_PASSWORD : BitWarden password
+# - BW_CLIENTID: BitWarden API Key Client ID
+# - BW_CLIENTSECRET: BitWarden API Key Secret
 
 function usage {
     echo "Usage : $(basename $0) --name <repo-name> [--list|--extract <archive-name>]"  &&\
