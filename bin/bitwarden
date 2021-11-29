@@ -1,20 +1,38 @@
 #!/bin/bash
 
 function bitwarden_login {
-    retry=5
+    login_retry=5
 
-    bw logout
-
-    until BW_SESSION=$(bw login --apikey)
+    while [[ $login_retry -gt 0 ]]
     do
-        retry=$retry-1
-        if [[ $retry -eq 0 ]] ; then
-            echo "Unable to log in your Bitwarden account. Please check your credential."
-            exit 3
+        login_retry=$login_retry-1
+
+        bw logout
+
+        if bw login --apikey; then
+            echo "Logged-in ; unlocking vault"
+            retry=5
+            until BW_SESSION=$(bw unlock --raw --passwordenv BW_PASSWORD)
+            do
+                retry=$retry-1
+                if [[ $retry -eq 0 ]] ; then
+                    echo "Unable to unlock your Bitwarden account. Please check your credentials."
+                    exit 3
+                fi
+                sleep 3
+                echo "Please try again ..."
+            done
+            break
+        else
+            sleep 3
+            echo "Please try again ..."
         fi
-        sleep 3
-        echo "Please try again ..."
     done
+
+    if [[ $login_retry -eq 0 ]] ; then
+        echo "Unable to log in your Bitwarden account. Please check your credentials."
+        exit 3
+    fi
 
     export BW_SESSION
 }

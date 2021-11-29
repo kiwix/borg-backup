@@ -111,6 +111,7 @@ The following is unattended and should be configured along your service. It runs
 docker run -v <some-folder>:/storage:ro \
     -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
     -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
+    -e BW_PASSWORD=<bitwarden-readonly-password> \
     kiwix/borg-backup backup --name <repo-name> --every <period>
 ```
 
@@ -143,6 +144,7 @@ docker run \
     -v /data/temp:/restore:rw \
     -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
     -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
+    -e BW_PASSWORD=<bitwarden-readonly-password> \
     kiwix/borg-backup restore --name <repo-name> --list
 ```
 
@@ -153,6 +155,7 @@ docker run \
     -v /data/temp:/restore:rw \
     -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
     -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
+    -e BW_PASSWORD=<bitwarden-readonly-password> \
     kiwix/borg-backup restore --name <repo-name> --extract "<archive-name>"
 ```
 
