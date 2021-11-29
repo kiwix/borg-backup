@@ -33,7 +33,7 @@ RUN apt-get update && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/*
 
-RUN curl -Ls 'https://vault.bitwarden.com/download/?app=cli&platform=linux' -o bitwarden.zip && \
+RUN curl -Ls 'https://github.com/bitwarden/cli/releases/download/v1.19.1/bw-linux-1.19.1.zip' -o bitwarden.zip && \
     unzip bitwarden.zip && rm -f bitwarden.zip && chmod +x bw && mv bw /usr/local/bin/
 
 RUN git clone --depth=1 --branch=master https://github.com/borgbase/borgbase-api-client.git && \
