@@ -79,7 +79,7 @@ This is a quick step that is separated from the backup one in order to keep your
 
 This command is intended to be run from your local machine so you don't have to insert your credentials on any other system.
 
-This tool is **interactive** and will ask for your Bitwarden master password and your BorgBase token (both you should have created in *Accounts setup*).
+This tool is **interactive** and will ask for your Bitwarden master API ClientID, API Secret, password and your BorgBase token (both you should have created in *Accounts setup*).
 
 ```sh
 docker run -it kiwix/borg-backup setup-new-repo \
