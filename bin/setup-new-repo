@@ -12,8 +12,8 @@ function generate_ssh_key {
 }
 
 function save_keys {
-    SSH_PUB_KEY=`cat ${SSH_PUB_KEY_FILE}`
-    SSH_PRIV_KEY=`cat ${SSH_PRIV_KEY_FILE}`
+    SSH_PUB_KEY=$(cat ${SSH_PUB_KEY_FILE})
+    SSH_PRIV_KEY=$(cat ${SSH_PRIV_KEY_FILE})
     LOGIN_ENTRY='{"username":"'"${SSH_PUB_KEY}"'","password":"'"${SSH_PRIV_KEY}"'"}'
     ID_ITEM=$(bw get template item |\
       jq '.name = "'${BORGBASE_NAME}'"' |\

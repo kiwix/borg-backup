@@ -1,6 +1,10 @@
 Kiwix's backup companion
 ========================
 
+[![CodeFactor](https://www.codefactor.io/repository/github/kiwix/borg-backup/badge)](https://www.codefactor.io/repository/github/kiwix/borg-backup)
+[![Docker](https://img.shields.io/docker/v/kiwix/borg-backup?label=docker&sort=semver)](https://hub.docker.com/r/kiwix/borg-backup)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 A [Docker image](https://hub.docker.com/r/kiwix/borg-backup) to easily backup your services' data into [BorgBase](https://www.borgbase.com/).
 
 ## What's this?

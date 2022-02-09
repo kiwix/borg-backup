@@ -11,17 +11,19 @@ import sys
 import subprocess
 import time
 
-os.environ["BORG_PASSPHRASE"] = ""
-os.environ["BORG_NEW_PASSPHRASE"] = ""
+os.environ["BORG_PASSPHRASE"] = ""  # nosec
+os.environ["BORG_NEW_PASSPHRASE"] = ""  # nosec
 
 CONFIG_DIR = "/root/"
 BORG_ENCRYPTION = "repokey"
 BORGMATIC_CONFIG = CONFIG_DIR + ".config/borgmatic/config.yaml"
 DB_SEPARATOR = "|||"
 
+
 def isAuthenticated(client):
     res = client.execute("{isAuthenticated}")
     return res["data"]["isAuthenticated"]
+
 
 def repo_exists(client, name):
     query = """
@@ -184,9 +186,9 @@ def main(
     max_retry,
     initial_delay_retry,
 ):
-    if(not isAuthenticated(borgbase_api_client)):
+    if not isAuthenticated(borgbase_api_client):
         print("Unable to connect to your Borgbase account, please check your token.")
-        return (2)
+        return 2
 
     repo_id = repo_exists(borgbase_api_client, name)
 
@@ -201,7 +203,7 @@ def main(
     print("Use repo path :", repo_path)
 
     with open(KNOWN_HOSTS_FILE, "w") as outfile:
-        subprocess.run(["ssh-keyscan", "-H", hostname], stdout=outfile)
+        subprocess.run(["/usr/bin/env", "ssh-keyscan", "-H", hostname], stdout=outfile)
 
     with open(BORGMATIC_CONFIG, "w") as FILE:
         write_config(
@@ -277,27 +279,26 @@ if __name__ == "__main__":
         and KEEP_MONTHLY
         and KEEP_YEARLY
     ):
-            sys.exit(
-                main(
-                    GraphQLClient(TOKEN),
-                    BACKUP_NAME,
-                    KNOWN_HOSTS_FILE,
-                    KEEP_WITHIN,
-                    KEEP_DAILY,
-                    KEEP_WEEKLY,
-                    KEEP_MONTHLY,
-                    KEEP_YEARLY,
-                    REGION,
-                    QUOTA,
-                    ALERT,
-                    list(map(urlparse, DATABASES.split(DB_SEPARATOR)))
-                    if DATABASES
-                    else [],
-                    MAX_BORGMATIC_RETRY,
-                    WAIT_BEFORE_BORGMATIC_RETRY,
-                )
+        sys.exit(
+            main(
+                GraphQLClient(TOKEN),
+                BACKUP_NAME,
+                KNOWN_HOSTS_FILE,
+                KEEP_WITHIN,
+                KEEP_DAILY,
+                KEEP_WEEKLY,
+                KEEP_MONTHLY,
+                KEEP_YEARLY,
+                REGION,
+                QUOTA,
+                ALERT,
+                list(map(urlparse, DATABASES.split(DB_SEPARATOR))) if DATABASES else [],
+                MAX_BORGMATIC_RETRY,
+                WAIT_BEFORE_BORGMATIC_RETRY,
             )
+        )
     else:
         sys.exit(
-            "Environnement variables missing, check BORGBASE_KEY, BORGBASE_NAME, KNOWN_HOSTS_FILE and KEEP_*"
+            "Environnement variables missing, check BORGBASE_KEY, BORGBASE_NAME, "
+            "KNOWN_HOSTS_FILE and KEEP_*"
         )
