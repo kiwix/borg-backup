@@ -1,0 +1,68 @@
+#!/bin/bash
+#
+# Author : Florent Kaisser <florent.pro@kaisser.name>
+#
+# ENV :
+# - BORGBASE_NAME : name of backup
+# - BW_CLIENTID: BitWarden API Key Client ID
+# - BW_CLIENTSECRET: BitWarden API Key Secret
+# - BW_PASSWORD: BitWarden Password
+
+CMD=$@
+
+export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=yes
+export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
+
+function main {
+    echo "Start initialization ..."
+
+    init_config
+
+    if ! init_borgbase_repository.py
+    then
+        exit 2
+    fi
+
+    echo "Initialization complete, running borgmatic ..."
+
+    /usr/local/bin/borgmatic -c /root/.config/borgmatic/config.yaml --verbosity 1 --files
+}
+
+function usage {
+    echo "Usage : $(basename $0) --name <repo-name>" &&\
+    echo -e "\t--name\t\tName of the existing backup repository"
+}
+
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    -n|--name)
+    export BORGBASE_NAME="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    *)    # unknown option
+    usage
+    exit 2
+    ;;
+esac
+done
+
+if [[ -z $BORGBASE_NAME ]]
+then
+    echo "Please give a correct repository name"
+    usage
+    exit 1
+fi
+
+if [[ -z $BW_CLIENTID ]] || [[ -z $BW_CLIENTSECRET ]] || [[ -z $BW_PASSWORD ]]
+then
+    echo "You must set BW_CLIENTID, BW_CLIENTSECRET and BW_PASSWORD"
+    exit 1
+fi
+
+source ssh_config
+
+main

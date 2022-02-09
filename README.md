@@ -133,6 +133,21 @@ Database DSN should be in the form: `type://user:password@host:port/dbname`. It 
 
 **Note**: Bitwarden will send you a `New Device Logged In From Linux` email every time you launch that container.
 
+### Single back-up
+
+If you want to rely on your own scheduling tool, you can use the `single-backup` command which just runs the backup once and exits.
+
+Note that contrary to the regular `backup` command, there is no interactive request for missing credentials. As for invalid credentials, this will simply fail the container.
+
+```sh
+docker run -v <some-folder>:/storage:ro \
+    -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
+    -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
+    -e BW_PASSWORD=<bitwarden-readonly-password> \
+    kiwix/borg-backup single-backup --name <repo-name>
+```
+
+
 ## Restoring data
 
 ### Using the extract tool
