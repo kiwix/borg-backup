@@ -7,8 +7,6 @@
 # - BW_CLIENTID: BitWarden API Key Client ID
 # - BW_CLIENTSECRET: BitWarden API Key Secret
 
-CMD=$@
-
 export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=yes
 export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
 
