@@ -37,18 +37,16 @@ RUN apt-get update && \
     unzip bitwarden.zip && rm -f bitwarden.zip && chmod +x bw && mv bw /usr/local/bin/ && \
     git clone --depth=1 --branch=master https://github.com/borgbase/borgbase-api-client.git && \
     mv borgbase-api-client/borgbase_api_client/ /usr/lib/python3/dist-packages/ && \
-    rm -rf borgbase-api-client && \
-    pip3 install --no-cache-dir requests && \
-    pip3 install --no-cache-dir --upgrade borgmatic
+    rm -rf borgbase-api-client
 
 # Install start script
 COPY bin/ /usr/local/bin/
 RUN chmod -R 0500 /usr/local/bin/*
 
+RUN pip3 install --no-cache-dir --upgrade requests==2.27.1 borgmatic==1.5.22
+
 WORKDIR /root
 
 RUN mkdir -p .ssh .config/borgmatic/ /config /storage /restore
-
-#ENTRYPOINT ["entrypoint.sh"]
 
 CMD ["backup"]
