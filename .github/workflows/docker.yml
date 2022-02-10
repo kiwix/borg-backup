@@ -17,7 +17,8 @@ jobs:
           restrict-to: kiwix/borg-backup
           image-name: kiwix/borg-backup
           on-master: latest
-          registries: docker.io
           credentials:
             DOCKERIO_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
             DOCKERIO_TOKEN=${{ secrets.DOCKERHUB_PASSWORD }}
+            GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
+            GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}

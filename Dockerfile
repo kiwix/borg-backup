@@ -1,4 +1,5 @@
 FROM debian:buster-slim
+LABEL org.opencontainers.image.source https://github.com/kiwix/borg-backup
 #
 # Author : Florent Kaisser <florent.pro@kaisser.name>
 #
