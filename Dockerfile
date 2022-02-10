@@ -1,4 +1,4 @@
-FROM debian:buster-slim
+FROM debian:bullseye-slim
 LABEL org.opencontainers.image.source https://github.com/kiwix/borg-backup
 #
 # Author : Florent Kaisser <florent.pro@kaisser.name>
@@ -37,13 +37,12 @@ RUN apt-get update && \
     unzip bitwarden.zip && rm -f bitwarden.zip && chmod +x bw && mv bw /usr/local/bin/ && \
     git clone --depth=1 --branch=master https://github.com/borgbase/borgbase-api-client.git && \
     mv borgbase-api-client/borgbase_api_client/ /usr/lib/python3/dist-packages/ && \
-    rm -rf borgbase-api-client
+    rm -rf borgbase-api-client && \
+    pip3 install --no-cache-dir --upgrade requests==2.27.1 borgmatic==1.5.22 jsonschema==4.4.0 pyrsistent==0.18.1
 
 # Install start script
 COPY bin/ /usr/local/bin/
 RUN chmod -R 0500 /usr/local/bin/*
-
-RUN pip3 install --no-cache-dir --upgrade requests==2.27.1 borgmatic==1.5.22
 
 WORKDIR /root
 
