@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build and push
-        uses: openzim/docker-publish-action@v7
+        uses: openzim/docker-publish-action@v8
         with:
           restrict-to: kiwix/borg-backup
           image-name: kiwix/borg-backup
@@ -22,3 +22,5 @@ jobs:
             DOCKERIO_TOKEN=${{ secrets.DOCKERHUB_PASSWORD }}
             GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}
             GHCRIO_TOKEN=${{ secrets.GHCR_TOKEN }}
+          repo_description: auto
+          repo_overview: auto
