@@ -31,6 +31,9 @@ ENV WAIT_BEFORE_BORGMATIC_RETRY="5"
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl jq borgbackup vim python3 python3-pip python3-setuptools openssh-client unzip git cron default-mysql-client postgresql-client && \
+    curl -Ls https://fastdl.mongodb.org/tools/db/mongodb-database-tools-debian10-x86_64-100.5.2.deb -o mongo-tools.deb && \
+    apt-get install -y --no-install-recommends -y ./mongo-tools.deb && \
+    rm -f ./mongo-tools.deb && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/* && \
     curl -Ls 'https://github.com/bitwarden/cli/releases/download/v1.19.1/bw-linux-1.19.1.zip' -o bitwarden.zip && \
@@ -38,7 +41,7 @@ RUN apt-get update && \
     git clone --depth=1 --branch=master https://github.com/borgbase/borgbase-api-client.git && \
     mv borgbase-api-client/borgbase_api_client/ /usr/lib/python3/dist-packages/ && \
     rm -rf borgbase-api-client && \
-    pip3 install --no-cache-dir --upgrade requests==2.27.1 borgmatic==1.5.22 jsonschema==4.4.0 pyrsistent==0.18.1
+    pip3 install --no-cache-dir --upgrade requests==2.27.1 borgmatic==1.5.23 jsonschema==4.4.0 pyrsistent==0.18.1
 
 # Install start script
 COPY bin/ /usr/local/bin/

@@ -133,7 +133,7 @@ Other parameters can be configured via Docker environment variables:
 - Databases backup:
   - `DATABASES`: DSNs of the database to backup.
 
-Database DSN should be in the form: `type://user:password@host:port/dbname`. It only supports `mysql` and `postgresql`. `dbname` can be `all` to backup all databases of that host/connexion.
+Database DSN should be in the form: `type://user:password@host:port/dbname`. It only supports `mysql`, `postgresql` and `mongodb`. `dbname` can be `all` to backup all databases of that host/connexion.
 
 **Note**: Bitwarden will send you a `New Device Logged In From Linux` email every time you launch that container.
 

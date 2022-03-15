@@ -88,7 +88,7 @@ def create_repo(client, name, region, quota, alert):
     return exit("unknown error")
 
 
-def write_config_databases(FILE, db_type, urls, options=""):
+def write_config_databases(FILE, db_type, urls, options="", authentication_database=""):
     FILE.write(f"    {db_type}_databases:\n")
     for url in urls:
         db_name = url.path[1:]  # ignore initial "/"
@@ -105,6 +105,10 @@ def write_config_databases(FILE, db_type, urls, options=""):
             FILE.write(f"          port : {url.port}\n")
         if options:
             FILE.write(f'          options : "{options}"\n')
+        if authentication_database:
+            FILE.write(
+                f"          authentication_database: {authentication_database}\n"
+            )
 
 
 def write_config(
@@ -156,8 +160,9 @@ storage:
 
     databases_mysql = list(filter(lambda u: u.scheme == "mysql", databases))
     databases_postgresql = list(filter(lambda u: u.scheme == "postgresql", databases))
+    databases_mongodb = list(filter(lambda u: u.scheme == "mongodb", databases))
 
-    if databases_mysql or databases_postgresql:
+    if databases_mysql or databases_postgresql or databases_mongodb:
         FILE.write("hooks:\n")
         if databases_mysql:
             write_config_databases(
@@ -168,6 +173,10 @@ storage:
             )
         if databases_postgresql:
             write_config_databases(FILE, "postgresql", databases_postgresql)
+        if databases_mongodb:
+            write_config_databases(
+                FILE, "mongodb", databases_mongodb, authentication_database="admin"
+            )
 
 
 def main(
