@@ -169,7 +169,8 @@ storage:
                 FILE,
                 "mysql",
                 databases_mysql,
-                "--single-transaction --quick --lock-tables=false",
+                "--single-transaction --quick --lock-tables=false "
+                "--max-allowed-packet=128M",
             )
         if databases_postgresql:
             write_config_databases(FILE, "postgresql", databases_postgresql)
