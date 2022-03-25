@@ -151,6 +151,28 @@ docker run -v <some-folder>:/storage:ro \
     kiwix/borg-backup single-backup --name <repo-name>
 ```
 
+### Custom command back-up (cli-mode)
+
+If you need to execute a command to prepare your backup data you can enable *cli-mode*.
+
+By setting the `CLI_MODE` variable, you are instructing the tool to run your passed command and, should it succeed, start a single-backup.
+
+- It requires passing all backup-related conf via environment variables.
+- It can be combined with regular data (/storage or databases).
+- It is restricted to single-backup. Container exits after your command and single-backup finishes.
+
+```sh
+docker run \
+    -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
+    -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
+    -e BW_PASSWORD=<bitwarden-readonly-password> \
+    -e BORG_NAME=<repo-name> \
+    -e CLI_MODE=y \
+    -v $HOME/.kube/config:/root/.kube/config:ro \
+    kiwix/borg-backup kube-dump all > /storage/
+```
+
+**Note**: [`kube-dump`](https://github.com/WoozyMasta/kube-dump) is installed in the image.
 
 ## Restoring data
 
