@@ -166,7 +166,7 @@ docker run \
     -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
     -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
     -e BW_PASSWORD=<bitwarden-readonly-password> \
-    -e BORG_NAME=<repo-name> \
+    -e BORGBASE_NAME=<repo-name> \
     -e CLI_MODE=y \
     -v $HOME/.kube/config:/root/.kube/config:ro \
     kiwix/borg-backup kube-dump all > /storage/

@@ -11,8 +11,8 @@ if [ ! -z "${CLI_MODE}" ] ; then
 
     "$@"
 
-    printf "[CLI-MODE] ${BLUE} Uploading backup to “${BORG_NAME}” repo…${RESET}\n"
-    exec single-backup --name $BORG_NAME
+    printf "[CLI-MODE] ${BLUE} Uploading backup to “${BORGBASE_NAME}” repo…${RESET}\n"
+    exec single-backup --name $BORGBASE_NAME
 else
     exec "$@"
 fi
