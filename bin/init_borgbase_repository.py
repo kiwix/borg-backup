@@ -121,12 +121,20 @@ def write_config(
     keep_monthly,
     keep_yearly,
     databases,
+    cross_fs_glob,
 ):
+
+    # when backuping a database, the `one_file_system` option is automatically
+    # turned on, preventing borgmatic from crossing mounted paths.
+    # Adding a `*` glob does allow it for some reason but the counter part is that
+    # it won't backup hidden files and folders on root of /storage.
+    # See: https://torsion.org/borgmatic/docs/reference/configuration/
+    folder_star = "*" if databases and cross_fs_glob else ""
 
     FILE.write(
         f"""location:
     source_directories:
-        - /storage
+        - /storage/{folder_star}
     repositories:
         - {repo_path}
 storage:
@@ -193,6 +201,7 @@ def main(
     quota,
     alert,
     databases,
+    cross_fs_glob,
     max_retry,
     initial_delay_retry,
 ):
@@ -226,6 +235,7 @@ def main(
             keep_monthly,
             keep_yearly,
             databases,
+            cross_fs_glob,
         )
 
     if max_retry == 0:
@@ -266,6 +276,7 @@ if __name__ == "__main__":
     KNOWN_HOSTS_FILE = os.environ.get("KNOWN_HOSTS_FILE")
 
     DATABASES = os.environ.get("DATABASES")
+    CROSS_FS_GLOB = os.environ.get("CROSS_FS_GLOB")
 
     KEEP_WITHIN = os.environ.get("KEEP_WITHIN")
     KEEP_DAILY = int(os.environ.get("KEEP_DAILY"))
@@ -303,6 +314,7 @@ if __name__ == "__main__":
                 QUOTA,
                 ALERT,
                 list(map(urlparse, DATABASES.split(DB_SEPARATOR))) if DATABASES else [],
+                bool(CROSS_FS_GLOB),
                 MAX_BORGMATIC_RETRY,
                 WAIT_BEFORE_BORGMATIC_RETRY,
             )

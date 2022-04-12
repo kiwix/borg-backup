@@ -233,6 +233,13 @@ docker run \
 
 Yes, if you specify `DATABASES` env, it's added on top of the mounted volume.
 
+⚠️ There is an important constraint when backing up both databases and files: your `/storage` mounted volume **must be a single volume**. You can not mount any other folder under `/storage` and expect its files to be included. Those will silently be ignored.
+
+If you would like to mount several volumes inside `/storage` and also backup databases, there is **a trick**: you can do it by setting the `CROSS_FS_GLOB` envrionment variable. Note that there are two catches:
+
+- hidden files/folders in `/storage` (root) will not be included
+- it relies on [undocumented/unexpected](https://projects.torsion.org/borgmatic-collective/borgmatic/issues/520 ) behavior
+
 ### Can I backup several databases at the same time?
 
 Yes, beside the `all` trick mentionned above, if you need to backup a list of databases or databases on different hosts or of different kinds, just concatenate the DSNs into the `DATABASES` env, separating them with `|||`.

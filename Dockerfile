@@ -46,7 +46,7 @@ RUN apt-get update && \
     git clone --depth=1 --branch=master https://github.com/borgbase/borgbase-api-client.git && \
     mv borgbase-api-client/borgbase_api_client/ /usr/lib/python3/dist-packages/ && \
     rm -rf borgbase-api-client && \
-    pip3 install --no-cache-dir --upgrade requests==2.27.1 borgmatic==1.5.23 jsonschema==4.4.0 pyrsistent==0.18.1 && \
+    pip3 install --no-cache-dir --upgrade requests==2.27.1 borgmatic==1.5.24 jsonschema==4.4.0 pyrsistent==0.18.1 && \
     curl -sLo /usr/bin/jq "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64" && \
     chmod +x /usr/bin/jq && \
     curl -sLo /usr/bin/yq "https://github.com/mikefarah/yq/releases/download/v4.20.2/yq_linux_amd64" && \
