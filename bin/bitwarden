@@ -19,12 +19,12 @@ function bitwarden_login {
                     echo "Unable to unlock your Bitwarden account. Please check your credentials."
                     exit 3
                 fi
-                sleep 3
+                sleep 60
                 echo "Please try again ..."
             done
             break
         else
-            sleep 3
+            sleep 60
             echo "Please try again ..."
         fi
     done
