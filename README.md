@@ -2,7 +2,7 @@ Kiwix's backup companion
 ========================
 
 [![CodeFactor](https://www.codefactor.io/repository/github/kiwix/borg-backup/badge)](https://www.codefactor.io/repository/github/kiwix/borg-backup)
-[![Docker](https://img.shields.io/docker/v/kiwix/borg-backup?label=docker&sort=semver)](https://hub.docker.com/r/kiwix/borg-backup)
+[![Docker](https://img.shields.io/badge/docker-latest-blue)](https://ghcr.io/kiwix/borg-backup)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 A [Docker image](https://hub.docker.com/r/kiwix/borg-backup) to easily backup your services' data into [BorgBase](https://www.borgbase.com/).
@@ -17,7 +17,7 @@ Example:
 # running your imaginary service
 docker run -v /data/www:/var/www/html -d nginx
 # running your backup companion
-docker run -v /data/www:/storage:ro kiwix/borg-backup backup --name nginx --every 1h
+docker run -v /data/www:/storage:ro ghcr.io/kiwix/borg-backup backup --name nginx --every 1h
 ```
 
 In this example, the content of `/data/www` on the host will be securely backed-up to BorgBase every hour.
@@ -86,7 +86,7 @@ This command is intended to be run from your local machine so you don't have to 
 This tool is **interactive** and will ask for your Bitwarden master API ClientID, API Secret, password and your BorgBase token (both you should have created in *Accounts setup*).
 
 ```sh
-docker run -it kiwix/borg-backup setup-new-repo \
+docker run -it ghcr.io/kiwix/borg-backup setup-new-repo \
     --name <repo-name> \
     --bitwarden <bitwarden-master-email> \
     --alert-days <nb-days>
@@ -116,7 +116,7 @@ docker run -v <some-folder>:/storage:ro \
     -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
     -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
     -e BW_PASSWORD=<bitwarden-readonly-password> \
-    kiwix/borg-backup backup --name <repo-name> --every <period>
+    ghcr.io/kiwix/borg-backup backup --name <repo-name> --every <period>
 ```
 
 - `<repo-name>` is the *repository* name configured in the setup step.
@@ -148,7 +148,7 @@ docker run -v <some-folder>:/storage:ro \
     -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
     -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
     -e BW_PASSWORD=<bitwarden-readonly-password> \
-    kiwix/borg-backup single-backup --name <repo-name>
+    ghcr.io/kiwix/borg-backup single-backup --name <repo-name>
 ```
 
 ### Custom command back-up (cli-mode)
@@ -169,7 +169,7 @@ docker run \
     -e BORGBASE_NAME=<repo-name> \
     -e CLI_MODE=y \
     -v $HOME/.kube/config:/root/.kube/config:ro \
-    kiwix/borg-backup kube-dump all > /storage/
+    ghcr.io/kiwix/borg-backup kube-dump all > /storage/
 ```
 
 **Note**: [`kube-dump`](https://github.com/WoozyMasta/kube-dump) is installed in the image.
@@ -186,7 +186,7 @@ docker run \
     -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
     -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
     -e BW_PASSWORD=<bitwarden-readonly-password> \
-    kiwix/borg-backup restore --name <repo-name> --list
+    ghcr.io/kiwix/borg-backup restore --name <repo-name> --list
 ```
 
 This will list all the available archives. Note the name of the one you'll want to extract.
@@ -197,7 +197,7 @@ docker run \
     -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
     -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
     -e BW_PASSWORD=<bitwarden-readonly-password> \
-    kiwix/borg-backup restore --name <repo-name> --extract "<archive-name>"
+    ghcr.io/kiwix/borg-backup restore --name <repo-name> --extract "<archive-name>"
 ```
 
 This will extract the content of the archive into `/restore` (which you should have mounted accordingly on the host).
@@ -226,7 +226,7 @@ Yes, just mount them as subfolders inside `/storage`:
 docker run \
     -v /data/media/images:/storage/images:ro \
     -v /data/attachments:/storage/attachments:ro \
-    kiwix/borg-backup backup --name myservice --every 1h
+    ghcr.io/kiwix/borg-backup backup --name myservice --every 1h
 ```
 
 ### Can I backup both a database and files at the same time?
