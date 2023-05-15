@@ -34,8 +34,13 @@ ARG KUBECTL_VERSION="1.23.3"
 RUN apt-get update && \
     apt-get install -y --no-install-recommends bash curl borgbackup vim \
         python3 python3-pip python3-setuptools openssh-client unzip git cron \
-        default-mysql-client postgresql-client \
-        dnsutils bind9utils tar xz-utils gzip bzip2 coreutils grep && \
+        default-mysql-client \
+        dnsutils bind9utils tar xz-utils gzip bzip2 coreutils grep lsb-release gnupg2 && \
+    # install postgresql-16 \
+    echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main 16" > /etc/apt/sources.list.d/pgdg.list && \
+    curl -Ls https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends -y postgresql-client-15 && \
     curl -Ls https://fastdl.mongodb.org/tools/db/mongodb-database-tools-debian10-x86_64-100.5.2.deb -o mongo-tools.deb && \
     apt-get install -y --no-install-recommends -y ./mongo-tools.deb && \
     rm -f ./mongo-tools.deb && \
