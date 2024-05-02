@@ -121,6 +121,7 @@ def write_config(
     keep_monthly,
     keep_yearly,
     databases,
+    databases_options,
     cross_fs_glob,
 ):
 
@@ -177,14 +178,23 @@ storage:
                 FILE,
                 "mysql",
                 databases_mysql,
-                "--single-transaction --quick --lock-tables=false "
-                "--max-allowed-packet=128M",
+                options=(
+                    "--single-transaction --quick --lock-tables=false "
+                    + "--max-allowed-packet=128M "
+                    + databases_options
+                ),
             )
         if databases_postgresql:
-            write_config_databases(FILE, "postgresql", databases_postgresql)
+            write_config_databases(
+                FILE, "postgresql", databases_postgresql, options=databases_options
+            )
         if databases_mongodb:
             write_config_databases(
-                FILE, "mongodb", databases_mongodb, authentication_database="admin"
+                FILE,
+                "mongodb",
+                databases_mongodb,
+                options=databases_options,
+                authentication_database="admin",
             )
 
 
@@ -201,6 +211,7 @@ def main(
     quota,
     alert,
     databases,
+    databases_options,
     cross_fs_glob,
     max_retry,
     initial_delay_retry,
@@ -235,6 +246,7 @@ def main(
             keep_monthly,
             keep_yearly,
             databases,
+            databases_options,
             cross_fs_glob,
         )
 
@@ -276,6 +288,7 @@ if __name__ == "__main__":
     KNOWN_HOSTS_FILE = os.environ.get("KNOWN_HOSTS_FILE")
 
     DATABASES = os.environ.get("DATABASES")
+    DATABASES_OPTIONS = os.environ.get("DATABASES_OPTIONS", "")
     CROSS_FS_GLOB = os.environ.get("CROSS_FS_GLOB")
 
     KEEP_WITHIN = os.environ.get("KEEP_WITHIN")
@@ -314,6 +327,7 @@ if __name__ == "__main__":
                 QUOTA,
                 ALERT,
                 list(map(urlparse, DATABASES.split(DB_SEPARATOR))) if DATABASES else [],
+                DATABASES_OPTIONS,
                 bool(CROSS_FS_GLOB),
                 MAX_BORGMATIC_RETRY,
                 WAIT_BEFORE_BORGMATIC_RETRY,

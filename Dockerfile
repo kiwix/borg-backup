@@ -25,6 +25,8 @@ ENV BACKUP_HOUR=3
 ENV BACKUP_MINUTE=12
 # No database to backup in default
 ENV DATABASES=""
+# options to pass to the database hook
+ENV DATABASES_OPTIONS=""
 # Retry paramaeters when setup a new repo
 ENV MAX_BORGMATIC_RETRY="10"
 ENV WAIT_BEFORE_BORGMATIC_RETRY="30"

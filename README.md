@@ -132,6 +132,7 @@ Other parameters can be configured via Docker environment variables:
   - `KEEP_YEARLY`: keep last archive of this many latest years (default: `1`)
 - Databases backup:
   - `DATABASES`: DSNs of the database to backup.
+  - `DATABASES_OPTIONS`: Options passed to all databases hookd. eg: `--ignore-table=wp1.too_large_table`
 
 Database DSN should be in the form: `type://user:password@host:port/dbname`. It only supports `mysql`, `postgresql` and `mongodb`. `dbname` can be `all` to backup all databases of that host/connexion.
 
