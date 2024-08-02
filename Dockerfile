@@ -42,7 +42,7 @@ RUN apt-get update && \
     echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main 16" > /etc/apt/sources.list.d/pgdg.list && \
     curl -Ls https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
     apt-get update && \
-    apt-get install -y --no-install-recommends -y postgresql-client-15 && \
+    apt-get install -y --no-install-recommends -y postgresql-client-16 && \
     curl -Ls https://fastdl.mongodb.org/tools/db/mongodb-database-tools-debian10-x86_64-100.5.2.deb -o mongo-tools.deb && \
     apt-get install -y --no-install-recommends -y ./mongo-tools.deb && \
     rm -f ./mongo-tools.deb && \
