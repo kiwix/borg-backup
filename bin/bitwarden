@@ -9,6 +9,10 @@ function bitwarden_login {
 
         bw logout
 
+        if [[ -n ${BITWARDEN_SERVER} ]] ; then
+            bw config server ${BITWARDEN_SERVER}
+        fi
+
         if bw login --apikey; then
             echo "Logged-in ; unlocking vault"
             retry=5
