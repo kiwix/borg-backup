@@ -249,6 +249,10 @@ Yes, beside the `all` trick mentionned above, if you need to backup a list of da
 -e DATABASES="mysql://root:root@db:3306/all|||mysql://user:pass@prod:3306/clients"
 ```
 
+### Where is my database backup ?
+
+The dump file is into the root/.borgmatic/ directory. See [Borgmatic documentations](https://torsion.org/borgmatic/docs/how-to/backup-your-databases/#manual-restoration)
+
 ### Can I replace BorgBase with another host?
 
 No, at the moment, we use their API so it can't be replaced with another service.
