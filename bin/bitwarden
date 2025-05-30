@@ -9,8 +9,8 @@ function bitwarden_login {
 
         bw logout
 
-        if [[ -n ${BITWARDEN_SERVER} ]] ; then
-            bw config server ${BITWARDEN_SERVER}
+        if [[ -n ${BW_SERVER} ]] ; then
+            bw config server ${BW_SERVER}
         fi
 
         if bw login --apikey; then
