@@ -254,10 +254,10 @@ The dump file is into the `root/.borgmatic` directory. See [Borgmatic documentat
 
 ### Can I use EU or self-hosted Bitwarden server ?
 
-Yes, just set  `BITWARDEN_SERVER` environment variable. For use EU server : 
+Yes, just set  `BW_SERVER` environment variable. For use EU server : 
 
 ```
--e BITWARDEN_SERVER=https://vault.bitwarden.eu`
+-e BW_SERVER=https://vault.bitwarden.eu`
 ```
 
 ### Can I replace BorgBase with another service or server?
