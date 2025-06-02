@@ -248,10 +248,23 @@ Yes, beside the `all` trick mentionned above, if you need to backup a list of da
 ```
 -e DATABASES="mysql://root:root@db:3306/all|||mysql://user:pass@prod:3306/clients"
 ```
+### Where is my database backup ?
 
-### Can I replace BorgBase with another host?
+Database dumps are placed under `root/.borgmatic` directory. See [Borgmatic documentations](https://torsion.org/borgmatic/docs/how-to/backup-your-databases/#manual-restoration).
 
-No, at the moment, we use their API so it can't be replaced with another service.
+### Can I use EU or self-hosted Bitwarden server ?
+
+Yes, just set `BW_SERVER` environment variable. To use the EU server : 
+
+```
+-e BW_SERVER="https://vault.bitwarden.eu"
+```
+
+Beware that Vaults are stored in a single region and cannot be changed (see Bitwarden docs regarding migration).
+
+### Can I replace BorgBase with another service or server?
+
+No, at the moment, we use specific Bitwarden API so it can't be replaced with another service.
 
 ### What if my Bitwarden is compromised?
 
