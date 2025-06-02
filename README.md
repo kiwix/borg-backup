@@ -250,15 +250,17 @@ Yes, beside the `all` trick mentionned above, if you need to backup a list of da
 ```
 ### Where is my database backup ?
 
-The dump file is into the `root/.borgmatic` directory. See [Borgmatic documentations](https://torsion.org/borgmatic/docs/how-to/backup-your-databases/#manual-restoration).
+Database dumps are placed under `root/.borgmatic` directory. See [Borgmatic documentations](https://torsion.org/borgmatic/docs/how-to/backup-your-databases/#manual-restoration).
 
 ### Can I use EU or self-hosted Bitwarden server ?
 
-Yes, just set  `BW_SERVER` environment variable. For use EU server : 
+Yes, just set `BW_SERVER` environment variable. To use the EU server : 
 
 ```
--e BW_SERVER=https://vault.bitwarden.eu`
+-e BW_SERVER="https://vault.bitwarden.eu"
 ```
+
+Beware that Vaults are stored in a single region and cannot be changed (see Bitwarden docs regarding migration).
 
 ### Can I replace BorgBase with another service or server?
 
