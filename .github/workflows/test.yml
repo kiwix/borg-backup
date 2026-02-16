@@ -1,0 +1,17 @@
+name: Docker
+
+on:
+  pull_request:
+
+jobs:
+  build-and-push:
+    name: Test Docker Image Build
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build the Docker image
+        run: |
+          docker build -t local-borg-backup .
