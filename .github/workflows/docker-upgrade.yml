@@ -3,11 +3,11 @@ name: Docker
 on:
   push:
     branches:
-      - main
+      - upgrade
 
 jobs:
   build-and-push:
-    name: Deploy Docker Image
+    name: Deploy Docker Upgrade Image
     permissions:
       contents: read
       packages: write
@@ -19,7 +19,7 @@ jobs:
         with:
           restrict-to: kiwix/borg-backup
           image-name: kiwix/borg-backup
-          on-master: latest
+          manual-tag: upgrade
           registries: ghcr.io
           credentials:
             GHCRIO_USERNAME=${{ secrets.GHCR_USERNAME }}

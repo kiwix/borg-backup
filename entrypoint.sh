@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# activate Python venv
+. /app/kiwix-python/bin/activate
+
 mkdir -p /storage
 
 if [ ! -z "${CLI_MODE}" ] ; then

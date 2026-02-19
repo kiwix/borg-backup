@@ -13,7 +13,7 @@ export BORG_RELOCATED_REPO_ACCESS_IS_OK=yes
 function init_cron {
     BORGMATIC_CRON="/etc/crontab"
     BORGMATIC_CONFIG="/root/.config/borgmatic/config.yaml"
-    BORGMATIC_CMD="/usr/bin/flock -w 0 /dev/shm/cron.lock /usr/local/bin/borgmatic -c ${BORGMATIC_CONFIG} --verbosity 1 --files"
+    BORGMATIC_CMD="/usr/bin/flock -w 0 /dev/shm/cron.lock /app/kiwix-python/bin/borgmatic -c ${BORGMATIC_CONFIG} --verbosity 1 --files"
     BORGMATIC_LOG_FILE="/dev/shm/borgmatic.log"
 
     CRON_MONTH="*"
