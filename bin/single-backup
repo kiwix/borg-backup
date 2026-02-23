@@ -23,7 +23,7 @@ function main {
 
     echo "Initialization complete, running borgmatic ..."
 
-    /usr/local/bin/borgmatic -c /root/.config/borgmatic/config.yaml --verbosity 1 --files
+    /app/kiwix-python/bin/borgmatic -c /root/.config/borgmatic/config.yaml --verbosity 1 --files
 }
 
 function usage {

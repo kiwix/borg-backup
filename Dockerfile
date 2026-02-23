@@ -1,5 +1,5 @@
-FROM debian:bullseye-slim
-LABEL org.opencontainers.image.source https://github.com/kiwix/borg-backup
+FROM debian:bookworm-slim
+LABEL org.opencontainers.image.source=https://github.com/kiwix/borg-backup
 #
 # Author : Florent Kaisser <florent.pro@kaisser.name>
 #
@@ -31,37 +31,41 @@ ENV DATABASES_OPTIONS=""
 ENV MAX_BORGMATIC_RETRY="10"
 ENV WAIT_BEFORE_BORGMATIC_RETRY="30"
 # for k8s cluster data backup
-ARG KUBECTL_VERSION="1.23.3"
+ARG KUBECTL_VERSION="1.34.2"
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends bash curl borgbackup vim \
         python3 python3-pip python3-setuptools openssh-client unzip git cron \
-        default-mysql-client \
-        dnsutils bind9utils tar xz-utils gzip bzip2 coreutils grep lsb-release gnupg2 && \
-    # install postgresql-18 \
-    echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main 18" > /etc/apt/sources.list.d/pgdg.list && \
-    curl -Ls https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+        default-mysql-client ca-certificates \
+        dnsutils bind9utils tar xz-utils gzip bzip2 coreutils grep lsb-release gnupg2 \
+        python3.11-venv && \
+    install -d /usr/share/postgresql-common/pgdg && \
+    curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc && \
+    . /etc/os-release && \
+    sh -c "echo 'deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $VERSION_CODENAME-pgdg main' > /etc/apt/sources.list.d/pgdg.list" && \
     apt-get update && \
     apt-get install -y --no-install-recommends -y postgresql-client-18 && \
-    curl -Ls https://fastdl.mongodb.org/tools/db/mongodb-database-tools-debian10-x86_64-100.5.2.deb -o mongo-tools.deb && \
+    curl -Ls https://fastdl.mongodb.org/tools/db/mongodb-database-tools-debian12-x86_64-100.14.1.deb -o mongo-tools.deb && \
     apt-get install -y --no-install-recommends -y ./mongo-tools.deb && \
     rm -f ./mongo-tools.deb && \
     apt-get clean -y && \
     rm -rf /var/lib/apt/lists/* && \
-    curl -Ls 'https://github.com/bitwarden/cli/releases/download/v1.19.1/bw-linux-1.19.1.zip' -o bitwarden.zip && \
+    curl -Ls 'https://github.com/bitwarden/cli/releases/download/v1.22.1/bw-linux-1.22.1.zip' -o bitwarden.zip && \
     unzip bitwarden.zip && rm -f bitwarden.zip && chmod +x bw && mv bw /usr/local/bin/ && \
+    python3.11 -m venv /app/kiwix-python && \
+    . /app/kiwix-python/bin/activate && \
     git clone --depth=1 --branch=master https://github.com/borgbase/borgbase-api-client.git && \
-    mv borgbase-api-client/borgbase_api_client/ /usr/lib/python3/dist-packages/ && \
+    mv borgbase-api-client/borgbase_api_client/ /app/kiwix-python/lib/python3.11/site-packages/ && \
     rm -rf borgbase-api-client && \
-    pip3 install --no-cache-dir --upgrade requests==2.27.1 borgmatic==1.5.24 jsonschema==4.4.0 pyrsistent==0.18.1 && \
-    curl -sLo /usr/bin/jq "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64" && \
+    pip3 install --no-cache-dir --upgrade requests==2.27.1 borgmatic==1.5.24 jsonschema==4.4.0 pyrsistent==0.18.1  && \
+    curl -sLo /usr/bin/jq "https://github.com/jqlang/jq/releases/download/jq-1.8.1/jq-linux64" && \
     chmod +x /usr/bin/jq && \
-    curl -sLo /usr/bin/yq "https://github.com/mikefarah/yq/releases/download/v4.20.2/yq_linux_amd64" && \
+    curl -sLo /usr/bin/yq "https://github.com/mikefarah/yq/releases/download/v4.52.4/yq_linux_amd64" && \
     chmod +x /usr/bin/yq && \
     curl -sLo /usr/bin/kubectl \
     "https://storage.googleapis.com/kubernetes-release/release/v$KUBECTL_VERSION/bin/linux/amd64/kubectl" && \
     chmod +x /usr/bin/kubectl && \
-    curl -sLo /usr/bin/kube-dump "https://raw.githubusercontent.com/WoozyMasta/kube-dump/1.1.1/kube-dump" && \
+    curl -sLo /usr/bin/kube-dump "https://raw.githubusercontent.com/WoozyMasta/kube-dump/1.1.2/kube-dump" && \
     chmod +x /usr/bin/kube-dump
 
 # Entrypoint for k8s mode

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/app/kiwix-python/bin/python
 #
 # Author : Florent Kaisser <florent.pro@kaisser.name>
 #
@@ -264,7 +264,7 @@ def main(
         time.sleep(delay)
         ret = subprocess.call(
             [
-                "/usr/local/bin/borgmatic",
+                "/app/kiwix-python/bin/borgmatic",
                 "-c",
                 BORGMATIC_CONFIG,
                 "-v",
