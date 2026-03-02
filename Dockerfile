@@ -63,7 +63,7 @@ RUN apt-get update && \
     curl -sLo /usr/bin/yq "https://github.com/mikefarah/yq/releases/download/v4.52.4/yq_linux_amd64" && \
     chmod +x /usr/bin/yq && \
     curl -sLo /usr/bin/kubectl \
-    "https://storage.googleapis.com/kubernetes-release/release/v$KUBECTL_VERSION/bin/linux/amd64/kubectl" && \
+    "https://dl.k8s.io/release/v$KUBECTL_VERSION/bin/linux/amd64/kubectl" && \
     chmod +x /usr/bin/kubectl && \
     curl -sLo /usr/bin/kube-dump "https://raw.githubusercontent.com/WoozyMasta/kube-dump/1.1.2/kube-dump" && \
     chmod +x /usr/bin/kube-dump
