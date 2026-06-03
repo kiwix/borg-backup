@@ -61,7 +61,7 @@ then
     exit 2
 fi
 
-repo_location=$(python3 -c 'from ruamel.yaml import YAML ; print(YAML().load(open("/root/.config/borgmatic/config.yaml"))["location"]["repositories"][0])')
+repo_location=$(/app/kiwix-python/bin/python3 -c 'from ruamel.yaml import YAML ; print(YAML().load(open("/root/.config/borgmatic/config.yaml"))["location"]["repositories"][0])')
 
 if [ "$list" = true ]
 then
