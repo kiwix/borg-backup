@@ -198,6 +198,19 @@ docker run \
     -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
     -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
     -e BW_PASSWORD=<bitwarden-readonly-password> \
+    ghcr.io/kiwix/borg-backup restore --name <repo-name> --list "<archive-name>"
+```
+
+This will list the content of the archive with size, date and ownership for each file.
+
+`--list` accepts a special value of `latest` that lists the lasted archive from the list.
+
+```sh
+docker run \
+    -v /data/temp:/restore:rw \
+    -e BW_CLIENTID=<bitwarden-readonly-apikey-clientid> \
+    -e BW_CLIENTSECRET=<bitwarden-readonly-apikey-secret> \
+    -e BW_PASSWORD=<bitwarden-readonly-password> \
     ghcr.io/kiwix/borg-backup restore --name <repo-name> --extract "<archive-name>"
 ```
 
