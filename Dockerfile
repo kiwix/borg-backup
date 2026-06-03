@@ -65,7 +65,7 @@ RUN echo "TARGETPLATFORM: $TARGETPLATFORM" \
     && /app/kiwix-python/bin/pip3 install . \
     && cd .. \
     && rm -rf borgbase-api-client \
-    && /app/kiwix-python/bin/pip3 install --no-cache-dir --upgrade requests==2.34.2 borgmatic==2.1.6 jsonschema==4.26.0 pyrsistent==0.20.0  \
+    && /app/kiwix-python/bin/pip3 install --no-cache-dir --upgrade requests==2.34.2 borgmatic==1.5.24 jsonschema==4.26.0 pyrsistent==0.20.0  \
     && curl -sLo /usr/bin/kubectl "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl" \
     && chmod +x /usr/bin/kubectl \
     && curl -sLo /usr/bin/kube-dump "https://raw.githubusercontent.com/WoozyMasta/kube-dump/1.1.2/kube-dump" \
