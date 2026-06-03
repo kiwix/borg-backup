@@ -27,6 +27,7 @@ case $key in
     shift # past value
     ;;
     -l|--list)
+    archive="$2"
     list=true
     shift # past argument
     shift # past value
@@ -64,8 +65,19 @@ repo_location=$(python3 -c 'from ruamel.yaml import YAML ; print(YAML().load(ope
 
 if [ "$list" = true ]
 then
-    echo -e "\n\nList avaible archives ..."
-    borg list "$repo_location"
+    if [ -z $archive ]
+    then
+        echo -e "\n\nList avaible archives ..."
+        borg list "$repo_location"
+    else
+        if [ $archive = latest ]
+        then
+            echo "Find the latest archive ..."
+            archive=$(borg list "$repo_location" | tail -n1 | cut -d' '  -f1)
+        fi
+        echo -e "\n\nList content of archive ${archive}…"
+        borg list "${repo_location}::${archive}"
+    fi
 fi
 
 if [ "$extract" = true ]
