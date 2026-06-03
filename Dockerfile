@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 LABEL org.opencontainers.image.source=https://github.com/kiwix/borg-backup
 #
 # Author : Florent Kaisser <florent.pro@kaisser.name>
@@ -38,7 +38,7 @@ RUN apt-get update && \
         python3 python3-pip python3-setuptools openssh-client unzip git cron \
         default-mysql-client ca-certificates \
         dnsutils bind9utils tar xz-utils gzip bzip2 coreutils grep lsb-release gnupg2 \
-        python3.11-venv && \
+        python3.13-venv && \
     install -d /usr/share/postgresql-common/pgdg && \
     curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc && \
     . /etc/os-release && \
@@ -57,6 +57,8 @@ RUN apt-get update && \
     git clone --depth=1 --branch=master https://github.com/borgbase/borgbase-api-client.git && \
     mv borgbase-api-client/borgbase_api_client/ /app/kiwix-python/lib/python3.11/site-packages/ && \
     rm -rf borgbase-api-client && \
+    python3.13 -m venv /app/kiwix-python && \
+    . /app/kiwix-python/bin/activate && \
     pip3 install --no-cache-dir --upgrade requests==2.27.1 borgmatic==1.5.24 jsonschema==4.4.0 pyrsistent==0.18.1  && \
     curl -sLo /usr/bin/jq "https://github.com/jqlang/jq/releases/download/jq-1.8.1/jq-linux64" && \
     chmod +x /usr/bin/jq && \
