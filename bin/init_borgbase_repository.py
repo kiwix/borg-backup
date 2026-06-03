@@ -1,4 +1,4 @@
-#!/app/kiwix-python/bin/python
+#!/app/kiwix-python/bin/python3
 #
 # Author : Florent Kaisser <florent.pro@kaisser.name>
 #
