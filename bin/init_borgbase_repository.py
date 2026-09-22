@@ -3,13 +3,14 @@
 # Author : Florent Kaisser <florent.pro@kaisser.name>
 #
 
+import os
+import subprocess
+import sys
+import time
+from urllib.parse import unquote, urlparse
+
 from borgbase_api_client.client import GraphQLClient
 from borgbase_api_client.mutations import REPO_ADD, SSH_ADD
-from urllib.parse import urlparse
-import os
-import sys
-import subprocess
-import time
 
 os.environ["BORG_PASSPHRASE"] = ""  # nosec
 os.environ["BORG_NEW_PASSPHRASE"] = ""  # nosec
@@ -82,7 +83,7 @@ def create_repo(client, name, region, quota, alert):
         return res["data"]["repoAdd"]["repoAdded"]["id"]
 
     print("Unable to create repository in BorgBase: ", end="")
-    if "errors" in res and res["errors"]:
+    if res.get("errors"):
         return sys.exit(res["errors"][0]["message"])
 
     return exit("unknown error")
@@ -96,9 +97,9 @@ def write_config_databases(FILE, db_type, urls, options="", authentication_datab
             sys.exit("Incorrect database name")
         FILE.write(f"        - name: {db_name}\n")
         if url.username:
-            FILE.write(f"          username : {url.username}\n")
+            FILE.write(f"          username : {unquote(url.username)}\n")
         if url.password:
-            FILE.write(f"          password : {url.password}\n")
+            FILE.write(f"          password : {unquote(url.password)}\n")
         if url.hostname:
             FILE.write(f"          hostname : {url.hostname}\n")
         if url.port:
